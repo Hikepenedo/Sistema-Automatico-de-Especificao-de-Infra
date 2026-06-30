@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Materiais - Cabeamento Estruturado</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Font Awesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2><i class="fas fa-network-wired"></i> NetCalc</h2>
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="#inicio" class="nav-link active"><i class="fas fa-home"></i> Início</a></li>
+                <li><a href="#calculadora" class="nav-link"><i class="fas fa-calculator"></i> Calculadora</a></li>
+                <li><a href="#resultado" class="nav-link"><i class="fas fa-chart-bar"></i> Resultados</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- Conteúdo Principal -->
+    <main class="container">
+        <!-- Cabeçalho -->
+        <header class="header" id="inicio">
+            <div class="header-content">
+                <h1><i class="fas fa-cogs"></i> Calculadora de Materiais - Cabeamento Estruturado</h1>
+                <p class="header-description">Sistema para cálculo automático de materiais de Backbone Óptico e Malha Horizontal</p>
+            </div>
+        </header>
+
+        <!-- Seleção do Tipo de Cálculo -->
+        <section class="calculation-type-section">
+            <h2>Selecione o Tipo de Cálculo</h2>
+            <div class="type-buttons">
+                <button class="type-btn" data-type="backbone" id="btnBackbone">
+                    <i class="fas fa-fiber-optics"></i>
+                    <span>Backbone</span>
+                </button>
+                <button class="type-btn" data-type="horizontal" id="btnHorizontal">
+                    <i class="fas fa-sitemap"></i>
+                    <span>Malha Horizontal</span>
+                </button>
+                <button class="type-btn" data-type="complete" id="btnComplete">
+                    <i class="fas fa-layer-group"></i>
+                    <span>Completo</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Formulário Principal -->
+        <section class="form-section" id="calculadora">
+            <form id="calculoForm">
+                <!-- Seção Backbone -->
+                <div class="form-card backbone-section" id="backboneSection" style="display: none;">
+                    <div class="card-header">
+                        <h2><i class="fas fa-fiber-optics"></i> Backbone Óptico</h2>
+                    </div>
+                    
+                    <div class="form-group-container">
+                        <div class="form-group">
+                            <label for="numPavimentos">Número de Pavimentos</label>
+                            <input type="number" id="numPavimentos" name="numPavimentos" min="1" value="1">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="numFibras">Número de Pares de Fibras Disponíveis</label>
+                            <input type="number" id="numFibras" name="numFibras" min="1" value="12">
+                        </div>
+                    </div>
+
+                    <div class="form-group-container">
+                        <div class="form-group">
+                            <label for="mediaLance">Medida Básica do Lance de Cabo (metros)</label>
+                            <input type="number" id="mediaLance" name="mediaLance" min="1" value="50" step="0.1">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="tipoFibra">Tipo de Fibra</label>
+                            <select id="tipoFibra" name="tipoFibra">
+                                <option value="SM">Monomodo (SM)</option>
+                                <option value="MM">Multimodo (MM)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group-container">
+                        <div class="form-group">
+                            <label for="caracteristicaFibra">Característica da Fibra</label>
+                            <input type="text" id="caracteristicaFibra" name="caracteristicaFibra" placeholder="Ex: 9/125, 50/125">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="qtdBackbonesAndar">Quantidade de Backbones por Andar</label>
+                            <input type="number" id="qtdBackbonesAndar" name="qtdBackbonesAndar" min="1" value="1">
+                        </div>
+                    </div>
+
+                    <div class="form-group-container">
+                        <div class="form-group checkbox-group">
+                            <label><i class="fas fa-check-square"></i> Existe Backbone Primário?</label>
+                            <div class="radio-group">
+                                <label class="radio-label">
+                                    <input type="radio" name="backbonePrimario" value="sim"> Sim
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="backbonePrimario" value="nao" checked> Não
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group checkbox-group">
+                            <label><i class="fas fa-check-square"></i> Existe Backbone Secundário?</label>
+                            <div class="radio-group">
+                                <label class="radio-label">
+                                    <input type="radio" name="backboneSecundario" value="sim"> Sim
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="backboneSecundario" value="nao" checked> Não
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Acessórios Backbone -->
+                    <div class="accessories-section">
+                        <h3><i class="fas fa-cube"></i> Acessórios Necessários</h3>
+                        <div class="checkbox-container">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="acessoriosBackbone" value="DIO"> 
+                                DIO (Distribution Interface Optical)
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="acessoriosBackbone" value="PatchCordOtico"> 
+                                Patch Cord Óptico
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="acessoriosBackbone" value="PigTail"> 
+                                Pig Tail
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="acessoriosBackbone" value="Adaptadores"> 
+                                Adaptadores
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="acessoriosBackbone" value="BandejaEmenda"> 
+                                Bandeja de Emenda
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="acessoriosBackbone" value="CaixaEmenda"> 
+                                Caixa de Emenda
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="acessoriosBackbone" value="Outros"> 
+                                Outros Acessórios
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Seção Malha Horizontal -->
+                <div class="form-card horizontal-section" id="horizontalSection" style="display: none;">
+                    <div class="card-header">
+                        <h2><i class="fas fa-sitemap"></i> Malha Horizontal</h2>
+                    </div>
+
+                    <div class="form-group-container">
+                        <div class="form-group">
+                            <label for="numPavimentosMH">Número de Pavimentos</label>
+                            <input type="number" id="numPavimentosMH" name="numPavimentosMH" min="1" value="1">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="numPontosPavimento">Número de Pontos por Pavimento</label>
+                            <input type="number" id="numPontosPavimento" name="numPontosPavimento" min="1" value="50">
+                        </div>
+                    </div>
+
+                    <div class="form-group-container">
+                        <div class="form-group">
+                            <label for="mediaDistancia">Medida Básica da Distância dos Cabos (metros)</label>
+                            <input type="number" id="mediaDistancia" name="mediaDistancia" min="1" value="100" step="0.1">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="categoriaCabo">Categoria do Cabo</label>
+                            <select id="categoriaCabo" name="categoriaCabo">
+                                <option value="Cat5e">Cat5e</option>
+                                <option value="Cat6">Cat6</option>
+                                <option value="Cat6A">Cat6A</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Quantidade de Pontos por Serviço -->
+                    <div class="service-points-section">
+                        <h3><i class="fas fa-cube"></i> Quantidade de Pontos por Serviço</h3>
+                        <div class="form-group-container">
+                            <div class="form-group">
+                                <label for="pontosDados">Dados</label>
+                                <input type="number" id="pontosDados" name="pontosDados" min="0" value="40">
+                            </div>
+                            <div class="form-group">
+                                <label for="pontosVoz">Voz</label>
+                                <input type="number" id="pontosVoz" name="pontosVoz" min="0" value="5">
+                            </div>
+                            <div class="form-group">
+                                <label for="pontosCFTV">CFTV</label>
+                                <input type="number" id="pontosCFTV" name="pontosCFTV" min="0" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label for="pontosWiFi">Wi-Fi</label>
+                                <input type="number" id="pontosWiFi" name="pontosWiFi" min="0" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label for="pontosOutros">Outros</label>
+                                <input type="number" id="pontosOutros" name="pontosOutros" min="0" value="0">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Materiais SEQ e SET -->
+                    <div class="materials-section">
+                        <h3><i class="fas fa-boxes"></i> Definição de Materiais</h3>
+                        <div class="form-group-container">
+                            <div class="form-group">
+                                <label for="materialSEQ">Material da SEQ (Sala de Equipamento)</label>
+                                <select id="materialSEQ" name="materialSEQ">
+                                    <option value="Patch Panel">Patch Panel RJ45</option>
+                                    <option value="Patch Cord">Patch Cord</option>
+                                    <option value="Caixa Terminação">Caixa de Terminação</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="materialSET">Material da SET (Sala de Equipamento Técnico)</label>
+                                <select id="materialSET" name="materialSET">
+                                    <option value="Tomada RJ45">Tomada RJ45</option>
+                                    <option value="Caixa 2x2">Caixa 2x2</option>
+                                    <option value="Roseta">Roseta</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botão Calcular -->
+                <div class="button-container">
+                    <button type="button" id="calcularBtn" class="btn btn-primary">
+                        <i class="fas fa-calculator"></i> Calcular
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Seção de Resultados -->
+        <section class="results-section" id="resultado" style="display: none;">
+            <div class="results-header">
+                <h2><i class="fas fa-chart-bar"></i> Resumo de Materiais</h2>
+            </div>
+
+            <!-- Resultados Backbone -->
+            <div class="result-card" id="resultBackbone" style="display: none;">
+                <div class="result-card-header">
+                    <h3><i class="fas fa-fiber-optics"></i> Backbone Óptico</h3>
+                </div>
+                <table class="result-table">
+                    <tbody id="resultBackboneBody">
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Resultados Malha Horizontal -->
+            <div class="result-card" id="resultHorizontal" style="display: none;">
+                <div class="result-card-header">
+                    <h3><i class="fas fa-sitemap"></i> Malha Horizontal</h3>
+                </div>
+                <table class="result-table">
+                    <tbody id="resultHorizontalBody">
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Botões de Ação -->
+            <div class="result-actions">
+                <button id="novoCalculoBtn" class="btn btn-secondary">
+                    <i class="fas fa-redo"></i> Calcular Novamente
+                </button>
+                <button id="exportExcelBtn" class="btn btn-success">
+                    <i class="fas fa-file-excel"></i> Exportar Excel
+                </button>
+                <button id="gerarPdfBtn" class="btn btn-info">
+                    <i class="fas fa-file-pdf"></i> Gerar PDF
+                </button>
+            </div>
+        </section>
+
+        <!-- Rodapé -->
+        <footer class="footer">
+            <p>&copy; 2024 Calculadora de Materiais - Cabeamento Estruturado. Desenvolvido para Técnicos e Projetistas de Redes.</p>
+        </footer>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
