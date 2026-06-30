@@ -227,7 +227,6 @@ body {
     border-radius: 8px;
 }
 
-.accessories-section,
 .service-points-section,
 .materials-section {
     margin: 25px 0;
@@ -237,7 +236,6 @@ body {
     border-left: 4px solid var(--accent-color);
 }
 
-.accessories-section h3,
 .service-points-section h3,
 .materials-section h3 {
     color: var(--primary-color);
@@ -471,7 +469,6 @@ body {
         font-size: 0.9em;
     }
 
-    .accessories-section,
     .service-points-section,
     .materials-section {
         margin: 15px 0;

@@ -90,33 +90,14 @@ function calcularBackbone() {
     const totalCaboOticoMetros = (mediaLance * totalBackbones * multiplicadorBackbone) + (50 * totalPavimentos);
     const quantidadeFibras = Math.ceil((totalCaboOticoMetros / 1000) * numFibras);
 
-    const acessoriosCheckbox = document.querySelectorAll('input[name="acessoriosBackbone"]:checked');
-    const acessoriosSelecionados = Array.from(acessoriosCheckbox).map(cb => cb.value);
-
-    const quantidadeDIO = acessoriosSelecionados.includes('DIO') ? Math.ceil(totalBackbones / 2) : 0;
-    const quantidadePatchCord = acessoriosSelecionados.includes('PatchCordOtico') ? totalBackbones * 2 : 0;
-    const quantidadePigTail = acessoriosSelecionados.includes('PigTail') ? Math.ceil(quantidadeFibras / 12) : 0;
-    const quantidadeAdaptadores = acessoriosSelecionados.includes('Adaptadores') ? Math.ceil(totalBackbones * 1.5) : 0;
-    const quantidadeBandejaEmenda = acessoriosSelecionados.includes('BandejaEmenda') ? totalPavimentos : 0;
-    const quantidadeCaixaEmenda = acessoriosSelecionados.includes('CaixaEmenda') ? Math.ceil(totalBackbones / 3) : 0;
-    const outrosAcessorios = acessoriosSelecionados.includes('Outros') ? 1 : 0;
-
     return {
         totalCaboOticoMetros: totalCaboOticoMetros.toFixed(2),
         quantidadeFibras: quantidadeFibras,
-        quantidadeDIO: quantidadeDIO,
-        quantidadePatchCord: quantidadePatchCord,
-        quantidadePigTail: quantidadePigTail,
-        quantidadeAdaptadores: quantidadeAdaptadores,
-        quantidadeBandejaEmenda: quantidadeBandejaEmenda,
-        quantidadeCaixaEmenda: quantidadeCaixaEmenda,
-        outrosAcessorios: outrosAcessorios,
         tipoFibra: tipoFibra,
         caracteristicaFibra: caracteristicaFibra,
         totalBackbones: totalBackbones,
         backbonePrimario: backbonePrimario,
-        backboneSecundario: backboneSecundario,
-        acessoriosSelecionados: acessoriosSelecionados
+        backboneSecundario: backboneSecundario
     };
 }
 
@@ -199,36 +180,6 @@ function exibirResultados() {
                 <td>Backbone Secundário</td>
                 <td>${ultimosResultados.backbone.backboneSecundario ? 'Sim' : 'Não'}</td>
             </tr>
-            ${ultimosResultados.backbone.quantidadeDIO > 0 ? `
-            <tr>
-                <td>Quantidade de DIO</td>
-                <td>${ultimosResultados.backbone.quantidadeDIO}</td>
-            </tr>` : ''}
-            ${ultimosResultados.backbone.quantidadePatchCord > 0 ? `
-            <tr>
-                <td>Quantidade de Patch Cords Ópticos</td>
-                <td>${ultimosResultados.backbone.quantidadePatchCord}</td>
-            </tr>` : ''}
-            ${ultimosResultados.backbone.quantidadePigTail > 0 ? `
-            <tr>
-                <td>Quantidade de Pig Tails</td>
-                <td>${ultimosResultados.backbone.quantidadePigTail}</td>
-            </tr>` : ''}
-            ${ultimosResultados.backbone.quantidadeAdaptadores > 0 ? `
-            <tr>
-                <td>Quantidade de Adaptadores</td>
-                <td>${ultimosResultados.backbone.quantidadeAdaptadores}</td>
-            </tr>` : ''}
-            ${ultimosResultados.backbone.quantidadeBandejaEmenda > 0 ? `
-            <tr>
-                <td>Quantidade de Bandejas de Emenda</td>
-                <td>${ultimosResultados.backbone.quantidadeBandejaEmenda}</td>
-            </tr>` : ''}
-            ${ultimosResultados.backbone.quantidadeCaixaEmenda > 0 ? `
-            <tr>
-                <td>Quantidade de Caixas de Emenda</td>
-                <td>${ultimosResultados.backbone.quantidadeCaixaEmenda}</td>
-            </tr>` : ''}
         `;
     } else {
         document.getElementById('resultBackbone').style.display = 'none';
@@ -344,24 +295,6 @@ function exportarExcel() {
         html += '<tr><td>Backbone Primário</td><td>' + (ultimosResultados.backbone.backbonePrimario ? 'Sim' : 'Não') + '</td></tr>';
         html += '<tr><td>Backbone Secundário</td><td>' + (ultimosResultados.backbone.backboneSecundario ? 'Sim' : 'Não') + '</td></tr>';
         
-        if (ultimosResultados.backbone.quantidadeDIO > 0) {
-            html += '<tr><td>DIO</td><td>' + ultimosResultados.backbone.quantidadeDIO + '</td></tr>';
-        }
-        if (ultimosResultados.backbone.quantidadePatchCord > 0) {
-            html += '<tr><td>Patch Cords Ópticos</td><td>' + ultimosResultados.backbone.quantidadePatchCord + '</td></tr>';
-        }
-        if (ultimosResultados.backbone.quantidadePigTail > 0) {
-            html += '<tr><td>Pig Tails</td><td>' + ultimosResultados.backbone.quantidadePigTail + '</td></tr>';
-        }
-        if (ultimosResultados.backbone.quantidadeAdaptadores > 0) {
-            html += '<tr><td>Adaptadores</td><td>' + ultimosResultados.backbone.quantidadeAdaptadores + '</td></tr>';
-        }
-        if (ultimosResultados.backbone.quantidadeBandejaEmenda > 0) {
-            html += '<tr><td>Bandejas de Emenda</td><td>' + ultimosResultados.backbone.quantidadeBandejaEmenda + '</td></tr>';
-        }
-        if (ultimosResultados.backbone.quantidadeCaixaEmenda > 0) {
-            html += '<tr><td>Caixas de Emenda</td><td>' + ultimosResultados.backbone.quantidadeCaixaEmenda + '</td></tr>';
-        }
         html += '<tr><td colspan="2"></td></tr>';
     }
 
