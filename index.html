@@ -5,13 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculadora de Materiais - Cabeamento Estruturado</title>
     <link rel="stylesheet" href="styles.css">
-    <!-- Font Awesome para ícones -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <!-- Conteúdo Principal -->
     <main class="container">
-        <!-- Cabeçalho -->
         <header class="header" id="inicio">
             <div class="header-content">
                 <h1><i class="fas fa-cogs"></i> Calculadora de Materiais - Cabeamento Estruturado</h1>
@@ -19,7 +16,6 @@
             </div>
         </header>
 
-        <!-- Seleção do Tipo de Cálculo -->
         <section class="calculation-type-section">
             <h2>Selecione o Tipo de Cálculo</h2>
             <div class="type-buttons">
@@ -38,10 +34,8 @@
             </div>
         </section>
 
-        <!-- Formulário Principal -->
         <section class="form-section" id="calculadora">
             <form id="calculoForm">
-                <!-- Seção Backbone -->
                 <div class="form-card backbone-section" id="backboneSection" style="display: none;">
                     <div class="card-header">
                         <h2><i class="fas fa-fiber-optics"></i> Backbone Óptico</h2>
@@ -87,32 +81,21 @@
                     </div>
 
                     <div class="form-group-container">
-                        <div class="form-group checkbox-group">
-                            <label><i class="fas fa-check-square"></i> Existe Backbone Primário?</label>
-                            <div class="radio-group">
-                                <label class="radio-label">
-                                    <input type="radio" name="backbonePrimario" value="sim"> Sim
-                                </label>
-                                <label class="radio-label">
-                                    <input type="radio" name="backbonePrimario" value="nao" checked> Não
-                                </label>
-                            </div>
+                        <div class="form-group">
+                            <label class="checkbox-label option-checkbox">
+                                <input type="checkbox" id="backbonePrimario" name="backbonePrimario">
+                                <span><i class="fas fa-check-square"></i> Existe Backbone Primário?</span>
+                            </label>
                         </div>
 
-                        <div class="form-group checkbox-group">
-                            <label><i class="fas fa-check-square"></i> Existe Backbone Secundário?</label>
-                            <div class="radio-group">
-                                <label class="radio-label">
-                                    <input type="radio" name="backboneSecundario" value="sim"> Sim
-                                </label>
-                                <label class="radio-label">
-                                    <input type="radio" name="backboneSecundario" value="nao" checked> Não
-                                </label>
-                            </div>
+                        <div class="form-group">
+                            <label class="checkbox-label option-checkbox">
+                                <input type="checkbox" id="backboneSecundario" name="backboneSecundario">
+                                <span><i class="fas fa-check-square"></i> Existe Backbone Secundário?</span>
+                            </label>
                         </div>
                     </div>
 
-                    <!-- Acessórios Backbone -->
                     <div class="accessories-section">
                         <h3><i class="fas fa-cube"></i> Acessórios Necessários</h3>
                         <div class="checkbox-container">
@@ -148,7 +131,6 @@
                     </div>
                 </div>
 
-                <!-- Seção Malha Horizontal -->
                 <div class="form-card horizontal-section" id="horizontalSection" style="display: none;">
                     <div class="card-header">
                         <h2><i class="fas fa-sitemap"></i> Malha Horizontal</h2>
@@ -182,7 +164,6 @@
                         </div>
                     </div>
 
-                    <!-- Quantidade de Pontos por Serviço -->
                     <div class="service-points-section">
                         <h3><i class="fas fa-cube"></i> Quantidade de Pontos por Serviço</h3>
                         <div class="form-group-container">
@@ -209,7 +190,6 @@
                         </div>
                     </div>
 
-                    <!-- Materiais SEQ e SET -->
                     <div class="materials-section">
                         <h3><i class="fas fa-boxes"></i> Definição de Materiais</h3>
                         <div class="form-group-container">
@@ -234,7 +214,6 @@
                     </div>
                 </div>
 
-                <!-- Botão Calcular -->
                 <div class="button-container">
                     <button type="button" id="calcularBtn" class="btn btn-primary">
                         <i class="fas fa-calculator"></i> Calcular
@@ -243,13 +222,11 @@
             </form>
         </section>
 
-        <!-- Seção de Resultados -->
         <section class="results-section" id="resultado" style="display: none;">
             <div class="results-header">
                 <h2><i class="fas fa-chart-bar"></i> Resumo de Materiais</h2>
             </div>
 
-            <!-- Resultados Backbone -->
             <div class="result-card" id="resultBackbone" style="display: none;">
                 <div class="result-card-header">
                     <h3><i class="fas fa-fiber-optics"></i> Backbone Óptico</h3>
@@ -260,7 +237,6 @@
                 </table>
             </div>
 
-            <!-- Resultados Malha Horizontal -->
             <div class="result-card" id="resultHorizontal" style="display: none;">
                 <div class="result-card-header">
                     <h3><i class="fas fa-sitemap"></i> Malha Horizontal</h3>
@@ -271,7 +247,6 @@
                 </table>
             </div>
 
-            <!-- Botões de Ação -->
             <div class="result-actions">
                 <button id="novoCalculoBtn" class="btn btn-secondary">
                     <i class="fas fa-redo"></i> Calcular Novamente
@@ -282,7 +257,6 @@
             </div>
         </section>
 
-        <!-- Rodapé -->
         <footer class="footer">
             <p>&copy; 2024 Calculadora de Materiais - Cabeamento Estruturado. Desenvolvido para Técnicos e Projetistas de Redes.</p>
         </footer>
