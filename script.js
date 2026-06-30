@@ -24,15 +24,7 @@ function inicializarEventos() {
     // Botões de Resultado
     document.getElementById('novoCalculoBtn').addEventListener('click', novoCalculo);
     document.getElementById('exportExcelBtn').addEventListener('click', exportarExcel);
-    document.getElementById('gerarPdfBtn').addEventListener('click', gerarPdf);
 
-    // Links de navegação
-    document.querySelectorAll('.nav-link').forEach(link => {
-        link.addEventListener('click', function(e) {
-            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-            this.classList.add('active');
-        });
-    });
 }
 
 // ===== SELEÇÃO DE TIPO DE CÁLCULO =====
@@ -439,24 +431,6 @@ function exportarExcel() {
     document.body.removeChild(a);
 
     alert('Arquivo Excel gerado com sucesso!');
-}
-
-// ===== GERAR PDF =====
-function gerarPdf() {
-    if (!ultimosResultados) return;
-
-    const elemento = document.getElementById('resultado');
-    const opt = {
-        margin: 10,
-        filename: 'calcular_materiais_' + new Date().getTime() + '.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
-    };
-
-    html2pdf().set(opt).from(elemento).save();
-
-    alert('PDF gerado com sucesso!');
 }
 
 // ===== UTILITÁRIOS =====
