@@ -89,15 +89,30 @@ function calcularBackbone() {
 
     const totalCaboOticoMetros = (mediaLance * totalBackbones * multiplicadorBackbone) + (50 * totalPavimentos);
     const quantidadeFibras = Math.ceil((totalCaboOticoMetros / 1000) * numFibras);
+    const materiaisOpticos = calcularMateriaisOpticos(quantidadeFibras);
 
     return {
         totalCaboOticoMetros: totalCaboOticoMetros.toFixed(2),
         quantidadeFibras: quantidadeFibras,
+        materiaisOpticos: materiaisOpticos,
         tipoFibra: tipoFibra,
         caracteristicaFibra: caracteristicaFibra,
         totalBackbones: totalBackbones,
         backbonePrimario: backbonePrimario,
         backboneSecundario: backboneSecundario
+    };
+}
+
+function calcularMateriaisOpticos(totalFibras) {
+    return {
+        quantidadeDIO: Math.ceil(totalFibras / 48),
+        quantidadeCaixaEmenda: Math.ceil(totalFibras / 12),
+        quantidadeAcopladorSC: totalFibras,
+        quantidadeAcopladorLC: Math.ceil(totalFibras / 2),
+        quantidadePigtailSC: totalFibras * 2,
+        quantidadePigtailLC: Math.ceil(totalFibras / 2) * 2,
+        quantidadeCordaoSC: totalFibras,
+        quantidadeCordaoLC: Math.ceil(totalFibras / 2)
     };
 }
 
@@ -155,6 +170,7 @@ function exibirResultados() {
     if (ultimosResultados.backbone) {
         document.getElementById('resultBackbone').style.display = 'block';
         const backboneBody = document.getElementById('resultBackboneBody');
+        const materiaisOpticos = ultimosResultados.backbone.materiaisOpticos;
         backboneBody.innerHTML = `
             <tr>
                 <td>Total de Cabo Óptico</td>
@@ -167,6 +183,38 @@ function exibirResultados() {
             <tr>
                 <td>Quantidade de Fibras</td>
                 <td>${ultimosResultados.backbone.quantidadeFibras}</td>
+            </tr>
+            <tr>
+                <td>Quantidade de DIO</td>
+                <td>${materiaisOpticos.quantidadeDIO}</td>
+            </tr>
+            <tr>
+                <td>Quantidade de Caixa de Emenda</td>
+                <td>${materiaisOpticos.quantidadeCaixaEmenda}</td>
+            </tr>
+            <tr>
+                <td>Acoplador Optico SC</td>
+                <td>${materiaisOpticos.quantidadeAcopladorSC}</td>
+            </tr>
+            <tr>
+                <td>Acoplador Optico LC</td>
+                <td>${materiaisOpticos.quantidadeAcopladorLC}</td>
+            </tr>
+            <tr>
+                <td>Pigtail SC</td>
+                <td>${materiaisOpticos.quantidadePigtailSC}</td>
+            </tr>
+            <tr>
+                <td>Pigtail LC</td>
+                <td>${materiaisOpticos.quantidadePigtailLC}</td>
+            </tr>
+            <tr>
+                <td>Cordao Optico SC</td>
+                <td>${materiaisOpticos.quantidadeCordaoSC}</td>
+            </tr>
+            <tr>
+                <td>Cordao Optico LC</td>
+                <td>${materiaisOpticos.quantidadeCordaoLC}</td>
             </tr>
             <tr>
                 <td>Total de Backbones</td>
@@ -287,10 +335,19 @@ function exportarExcel() {
     html += '<tr><td colspan="2"></td></tr>';
 
     if (ultimosResultados.backbone) {
+        const materiaisOpticos = ultimosResultados.backbone.materiaisOpticos;
         html += '<tr><td colspan="2"><b>BACKBONE ÓPTICO</b></td></tr>';
         html += '<tr><td>Total de Cabo Óptico (m)</td><td>' + ultimosResultados.backbone.totalCaboOticoMetros + '</td></tr>';
         html += '<tr><td>Tipo de Fibra</td><td>' + ultimosResultados.backbone.tipoFibra + ' (' + ultimosResultados.backbone.caracteristicaFibra + ')</td></tr>';
         html += '<tr><td>Quantidade de Fibras</td><td>' + ultimosResultados.backbone.quantidadeFibras + '</td></tr>';
+        html += '<tr><td>DIO</td><td>' + materiaisOpticos.quantidadeDIO + '</td></tr>';
+        html += '<tr><td>Caixa de Emenda</td><td>' + materiaisOpticos.quantidadeCaixaEmenda + '</td></tr>';
+        html += '<tr><td>Acoplador Optico SC</td><td>' + materiaisOpticos.quantidadeAcopladorSC + '</td></tr>';
+        html += '<tr><td>Acoplador Optico LC</td><td>' + materiaisOpticos.quantidadeAcopladorLC + '</td></tr>';
+        html += '<tr><td>Pigtail SC</td><td>' + materiaisOpticos.quantidadePigtailSC + '</td></tr>';
+        html += '<tr><td>Pigtail LC</td><td>' + materiaisOpticos.quantidadePigtailLC + '</td></tr>';
+        html += '<tr><td>Cordao Optico SC</td><td>' + materiaisOpticos.quantidadeCordaoSC + '</td></tr>';
+        html += '<tr><td>Cordao Optico LC</td><td>' + materiaisOpticos.quantidadeCordaoLC + '</td></tr>';
         html += '<tr><td>Total de Backbones</td><td>' + ultimosResultados.backbone.totalBackbones + '</td></tr>';
         html += '<tr><td>Backbone Primário</td><td>' + (ultimosResultados.backbone.backbonePrimario ? 'Sim' : 'Não') + '</td></tr>';
         html += '<tr><td>Backbone Secundário</td><td>' + (ultimosResultados.backbone.backboneSecundario ? 'Sim' : 'Não') + '</td></tr>';
