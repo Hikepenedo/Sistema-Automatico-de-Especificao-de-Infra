@@ -220,6 +220,19 @@ function montarEspecificacoesBackbone(backbone) {
     ];
 }
 
+function montarEspecificacoesBackboneSET(backbone) {
+    const materiais = backbone.materiaisOpticos;
+    const caracteristica = obterCaracteristicaFibra(backbone);
+    const quantidadeTerminadores = Math.ceil(backbone.quantidadeFibras / backbone.numFibras);
+    const unidadeTerminador = quantidadeTerminadores > 1 ? 'unidades' : 'unidade';
+    const unidadePigtail = materiais.portasDIO > 1 ? 'unidades' : 'unidade';
+
+    return [
+        `Terminador Óptico (TO) de ${backbone.numFibras} fibras – ${formatarQuantidade(quantidadeTerminadores)} ${unidadeTerminador};`,
+        `Pigtail (${caracteristica}) duplo – conector LC - 3m - ${formatarQuantidade(materiais.portasDIO)} ${unidadePigtail};`
+    ];
+}
+
 function linha(label, valor) {
     return { label, valor };
 }
@@ -231,14 +244,14 @@ function linhaColspan(valor, className = '') {
 function montarLinhasBackbone(backbone, incluirClasse = false) {
     const classeSecao = incluirClasse ? 'section-row' : '';
     const classeEspecificacao = incluirClasse ? 'specification-cell' : '';
-    const classePendente = incluirClasse ? 'pending-cell' : '';
 
     return [
         linhaColspan('Sala de Equipamentos (SEQ)', classeSecao),
         ...montarEspecificacoesBackbone(backbone)
             .map(item => linhaColspan(item, classeEspecificacao)),
         linhaColspan('Sala de Telecom (SET)', classeSecao),
-        linhaColspan('Materiais da SET ainda não implementados.', classePendente)
+        ...montarEspecificacoesBackboneSET(backbone)
+            .map(item => linhaColspan(item, classeEspecificacao))
     ];
 }
 
