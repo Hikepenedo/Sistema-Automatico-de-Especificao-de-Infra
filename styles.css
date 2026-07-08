@@ -381,6 +381,36 @@ body {
     font-size: 1.1em;
 }
 
+.result-table td.specification-cell,
+.result-table td.specification-cell:last-child {
+    padding: 18px 28px 18px 42px;
+    text-align: left;
+    font-weight: 500;
+    line-height: 1.55;
+    color: var(--dark-text);
+    font-size: 1em;
+}
+
+.result-table td.section-row,
+.result-table td.section-row:last-child {
+    background-color: var(--primary-color);
+    color: var(--white);
+    text-align: left;
+    font-size: 0.95em;
+    font-weight: 700;
+    letter-spacing: 0;
+}
+
+.result-table td.pending-cell,
+.result-table td.pending-cell:last-child {
+    padding: 14px 28px 14px 42px;
+    color: var(--muted-text);
+    font-size: 0.95em;
+    font-style: italic;
+    font-weight: 500;
+    text-align: left;
+}
+
 .result-actions {
     display: flex;
     gap: 15px;

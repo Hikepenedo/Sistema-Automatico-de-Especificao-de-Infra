@@ -45,26 +45,26 @@
                     <div class="form-group-container">
                         <div class="form-group">
                             <label for="numPavimentos">Número de Pavimentos</label>
-                            <input type="number" id="numPavimentos" name="numPavimentos" min="1" value="1">
+                            <input type="number" id="numPavimentos" name="numPavimentos" min="1" value="3">
                         </div>
 
                         <div class="form-group">
-                            <label for="numFibras">Número de Pares de Fibras Disponíveis</label>
-                            <input type="number" id="numFibras" name="numFibras" min="1" value="12">
+                            <label for="numFibras">Número de Fibras Disponíveis</label>
+                            <input type="number" id="numFibras" name="numFibras" min="1" value="6">
                         </div>
                     </div>
 
                     <div class="form-group-container">
                         <div class="form-group">
                             <label for="mediaLance">Medida Básica do Lance de Cabo (metros)</label>
-                            <input type="number" id="mediaLance" name="mediaLance" min="1" value="50" step="0.1">
+                            <input type="number" id="mediaLance" name="mediaLance" min="1" value="5" step="0.1">
                         </div>
 
                         <div class="form-group">
                             <label for="tipoFibra">Tipo de Fibra</label>
                             <select id="tipoFibra" name="tipoFibra">
                                 <option value="SM">Monomodo (SM)</option>
-                                <option value="MM">Multimodo (MM)</option>
+                                <option value="MM" selected>Multimodo (MM)</option>
                             </select>
                         </div>
                     </div>
@@ -171,7 +171,7 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="materialSET">Material da SET (Sala de Equipamento Técnico)</label>
+                                <label for="materialSET">Material da SET (Sala de Telecom)</label>
                                 <select id="materialSET" name="materialSET">
                                     <option value="Tomada RJ45">Tomada RJ45</option>
                                     <option value="Caixa 2x2">Caixa 2x2</option>
@@ -182,7 +182,7 @@
                     </div>
                 </div>
 
-                <div class="button-container">
+                <div class="button-container" id="calcularContainer" style="display: none;">
                     <button type="button" id="calcularBtn" class="btn btn-primary">
                         <i class="fas fa-calculator"></i> Calcular
                     </button>
