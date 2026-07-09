@@ -585,7 +585,7 @@ function montarEspecificacaoBandejas(horizontal) {
         return null;
     }
 
-    return `Bandeja - 19" - ${horizontal.numBandejas} Fixas - ${horizontal.numBandejasMoveis} Moveis
+    return `Bandeja - 19" - ${horizontal.numBandejas} fixa${horizontal.numBandejas !== 1 ? 's' : ''} - ${horizontal.numBandejasMoveis} movel${horizontal.numBandejasMoveis !== 1 ? 's' : ''} - ${horizontal.totalUBandejas}U de espacamento;`;
 }
 
 function montarLinhaEspecificacaoOpcional(especificacao, classeEspecificacao) {
