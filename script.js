@@ -585,7 +585,7 @@ function montarEspecificacaoBandejas(horizontal) {
         return null;
     }
 
-    return `Bandeja - 19" - ${horizontal.numBandejas} fixa${horizontal.numBandejas !== 1 ? 's' : ''} - ${horizontal.numBandejasMoveis} movel${horizontal.numBandejasMoveis !== 1 ? 's' : ''} - ${horizontal.totalUBandejas}U de espacamento;`;
+    return `Bandeja - 19" - ${horizontal.numBandejas} fixa${horizontal.numBandejas !== 1 ? 's' : ''} - ${horizontal.numBandejasMoveis} movel${horizontal.numBandejasMoveis !== 1 ? 's' : ''}`;
 }
 
 function montarLinhaEspecificacaoOpcional(especificacao, classeEspecificacao) {
@@ -616,13 +616,21 @@ function calcularMiscelaneas(horizontal) {
     const pontosRedeTotal = horizontal.pontosRede || 0;
     const quantidadePatchPanels = horizontal.quantidadePatchPanels || 0;
     const quantidadeRacks = horizontal.quantidadeRacks || 0;
+    const totalPatchPanelsServicos = Object.entries(SERVICOS_PONTOS)
+        .filter(([campo]) => campo !== 'pontosDados')
+        .reduce((total, [campo]) => total + Math.ceil((horizontal.detalhes[campo] || 0) / 24), 0);
+    const totalPatchPanels = quantidadePatchPanels + totalPatchPanelsServicos;
+    const totalU = getTotalU(horizontal);
+    const totalUporRack = quantidadeRacks > 0 ? Math.ceil(totalU / quantidadeRacks) * 1.5 : 0;
+    const tamanhoRack = quantidadeRacks > 0 ? getTamanhoRackComercial(totalUporRack) : 0;
 
     return {
         etiquetasEspelhoTomada: pontosRedeTotal,
-        etiquetasPatchPanel: quantidadePatchPanels * 24,
+        etiquetasPatchPanel: totalPatchPanels * 24,
         etiquetasRack: quantidadeRacks,
         bracadeirasVelcro: Math.ceil((pontosRedeTotal * 0.25 * 1.15) / 3),
-        bracadeirasPlastico: Math.ceil(((pontosRedeTotal * 1.5 + quantidadeRacks * 150) * 1.2) / 100)
+        bracadeirasPlastico: Math.ceil(((pontosRedeTotal * 1.5 + quantidadeRacks * 150) * 1.2) / 100),
+        parafusosPorcaGaiola: Math.ceil((tamanhoRack * 4 * quantidadeRacks) / 16)
     };
 }
 
@@ -634,7 +642,8 @@ function montarEspecificacoesMiscelaneas(horizontal) {
         `Etiquetas portas Patch Pannel - ${miscelaneas.etiquetasPatchPanel} unidade${miscelaneas.etiquetasPatchPanel > 1 ? 's' : ''};`,
         `Etiquetas para rack - ${miscelaneas.etiquetasRack} unidade${miscelaneas.etiquetasRack > 1 ? 's' : ''};`,
         `Abraçadeiras de velcro (3 metros) - ${miscelaneas.bracadeirasVelcro} unidade${miscelaneas.bracadeirasVelcro > 1 ? 's' : ''};`,
-        `Abraçadeiras de plástico (100 unidades) - ${miscelaneas.bracadeirasPlastico} pacote${miscelaneas.bracadeirasPlastico > 1 ? 's' : ''};`
+        `Abraçadeiras de plástico (100 unidades) - ${miscelaneas.bracadeirasPlastico} pacote${miscelaneas.bracadeirasPlastico > 1 ? 's' : ''};`,
+        `Parafusos Porca Gaiola (16 unidades) - ${miscelaneas.parafusosPorcaGaiola} pacote${miscelaneas.parafusosPorcaGaiola > 1 ? 's' : ''};`
     ];
 }
 
