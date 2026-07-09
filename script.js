@@ -382,8 +382,9 @@ function calcularMalhaHorizontal() {
     const caboHorizontalMetros = pontosRedePorPavimento * dados.mediaDistancia * dados.numPavimentosMH;
     const quantidadePatchPanels = Math.ceil(pontosRede / 24);
     const quantidadeTomadas = totalPontos;
+    const detalhes = montarDetalhesPontos(dados.pontos, dados.numPavimentosMH);
 
-    return {
+    const horizontal = {
         totalCaboUTPMetros: ((dados.mediaDistancia * totalPontos) + (100 * dados.numPavimentosMH)).toFixed(2),
         quantidadeConectoresRJ45: totalPontos * 2,
         quantidadePatchPanels,
@@ -407,8 +408,14 @@ function calcularMalhaHorizontal() {
         numBandejasMoveis: dados.numBandejasMoveis,
         totalUBandejas: dados.totalUBandejas,
         tipoRack: dados.tipoRack,
-        detalhes: montarDetalhesPontos(dados.pontos, dados.numPavimentosMH)
+        detalhes,
+        quantidadeRacks: 0
     };
+
+    horizontal.quantidadeRacks = getQuantidadedeRacks(horizontal) * horizontal.numPavimentos;
+    horizontal.miscelaneas = calcularMiscelaneas(horizontal);
+
+    return horizontal;
 }
 
 function montarDetalhesPontos(pontos, pavimentos) {
@@ -511,7 +518,9 @@ function montarLinhasHorizontal(horizontal, contexto = 'tela') {
         ...montarLinhaEspecificacaoOpcional(montarEspecificacaoBandejas(horizontal), classeEspecificacao),
         linhaColspan(montarEspecificacaoExaustor(horizontal), classeEspecificacao),
         linhaColspan(montarEspecificacaoRack(horizontal), classeEspecificacao),
-        linhaColspan('Miscelânias', classeSecao)
+        linhaColspan('Miscelânias', classeSecao),
+        ...montarEspecificacoesMiscelaneas(horizontal)
+            .map(especificacao => linhaColspan(especificacao, classeEspecificacao))
     ];
 }
 
@@ -576,7 +585,7 @@ function montarEspecificacaoBandejas(horizontal) {
         return null;
     }
 
-    return `Bandeja - 19" - ${horizontal.numBandejas} Fixas - ${horizontal.numBandejasMoveis} Moveis - ${horizontal.totalUBandejas}U `
+    return `Bandeja - 19" - ${horizontal.numBandejas} Fixas - ${horizontal.numBandejasMoveis} Moveis
 }
 
 function montarLinhaEspecificacaoOpcional(especificacao, classeEspecificacao) {
@@ -590,7 +599,7 @@ function montarEspecificacaoPatchCable(horizontal) {
             quantidadePatchCable: horizontal.detalhes[campo]
         }))
         .filter(item => item.quantidadePatchCable > 0 )
-        .map(item => `Cordao de Ligacao (Patch Cable) - ${item.servico}- 3m - ${horizontal.categoriaCabo} - ${item.quantidadePatchCable} unidade${item.quantidadePatchCable > 1 ? 's' : ''};`);
+        .map(item => `Cordão de Ligacao (Patch Cable) - ${item.servico}- 3m - ${horizontal.categoriaCabo} - ${item.quantidadePatchCable} unidade${item.quantidadePatchCable > 1 ? 's' : ''};`);
 
 }
 
@@ -601,6 +610,32 @@ function montarEspecificacaoRack(horizontal) {
     const tamanhoRack = getTamanhoRackComercial(totalUporRack)
     const tipoRack = horizontal.tipoRack === 'fechado' ? 'fechado' : 'aberto';
     return `Rack ${tipoRack} - 19" - ${tamanhoRack}U - ${quantidadeRacks * horizontal.numPavimentos} unidades;`;
+}
+
+function calcularMiscelaneas(horizontal) {
+    const pontosRedeTotal = horizontal.pontosRede || 0;
+    const quantidadePatchPanels = horizontal.quantidadePatchPanels || 0;
+    const quantidadeRacks = horizontal.quantidadeRacks || 0;
+
+    return {
+        etiquetasEspelhoTomada: pontosRedeTotal,
+        etiquetasPatchPanel: quantidadePatchPanels * 24,
+        etiquetasRack: quantidadeRacks,
+        bracadeirasVelcro: Math.ceil((pontosRedeTotal * 0.25 * 1.15) / 3),
+        bracadeirasPlastico: Math.ceil(((pontosRedeTotal * 1.5 + quantidadeRacks * 150) * 1.2) / 100)
+    };
+}
+
+function montarEspecificacoesMiscelaneas(horizontal) {
+    const miscelaneas = horizontal.miscelaneas || calcularMiscelaneas(horizontal);
+
+    return [
+        `Etiquetas para espelho de tomada - ${miscelaneas.etiquetasEspelhoTomada} unidade${miscelaneas.etiquetasEspelhoTomada > 1 ? 's' : ''};`,
+        `Etiquetas portas Patch Pannel - ${miscelaneas.etiquetasPatchPanel} unidade${miscelaneas.etiquetasPatchPanel > 1 ? 's' : ''};`,
+        `Etiquetas para rack - ${miscelaneas.etiquetasRack} unidade${miscelaneas.etiquetasRack > 1 ? 's' : ''};`,
+        `Abraçadeiras de velcro (3 metros) - ${miscelaneas.bracadeirasVelcro} unidade${miscelaneas.bracadeirasVelcro > 1 ? 's' : ''};`,
+        `Abraçadeiras de plástico (100 unidades) - ${miscelaneas.bracadeirasPlastico} pacote${miscelaneas.bracadeirasPlastico > 1 ? 's' : ''};`
+    ];
 }
 
 function getTamanhoRackComercial(totalU) {
