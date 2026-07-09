@@ -111,8 +111,34 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="numPontosPavimento">Número de Pontos por Pavimento</label>
-                            <input type="number" id="numPontosPavimento" name="numPontosPavimento" min="1" value="50">
+                            <label for="numPontosPavimento">Número de Pontos de Telecom por Pavimento</label>
+                            <div class="input-action-group">
+                                <input type="number" id="numPontosPavimento" name="numPontosPavimento" min="1" value="50">
+                                <button type="button" id="toggleServicePointsBtn" class="btn btn-inline" aria-expanded="false" aria-controls="servicePointsSection">
+                                    <i class="fas fa-cube"></i> Pontos por Serviço
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="service-points-section" id="servicePointsSection" style="display: none;">
+                        <h3>
+                            <span><i class="fas fa-cube"></i> Quantidade de Pontos por Serviço</span>
+                            <span class="section-counter" id="servicePointsCounter">100 / 100</span>
+                        </h3>
+                        <div class="form-group-container">
+                            <div class="form-group">
+                                <label for="pontosDados">Dados</label>
+                                <input type="number" id="pontosDados" name="pontosDados" min="0" value="40">
+                            </div>
+                            <div class="form-group">
+                                <label for="pontosVoz">Voz</label>
+                                <input type="number" id="pontosVoz" name="pontosVoz" min="0" value="5">
+                            </div>
+                            <div class="form-group">
+                                <label for="pontosCFTV">CFTV</label>
+                                <input type="number" id="pontosCFTV" name="pontosCFTV" min="0" value="55">
+                            </div>
                         </div>
                     </div>
 
@@ -128,58 +154,76 @@
                                 <option value="Cat5e">Cat5e</option>
                                 <option value="Cat6">Cat6</option>
                                 <option value="Cat6A">Cat6A</option>
+                                <option value="Cat7">Cat7</option>
+                                <option value="Cat7A">Cat7A</option>
+                                <option value="Cat8">Cat8</option>
+                                <option value="Cat8.1">Cat8.1</option>
+                                <option value="Cat8.2">Cat8.2</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="tipoCaboMetalico">Tipo do Cabo</label>
+                            <select id="tipoCaboMetalico" name="tipoCaboMetalico">
+                                <option value="UTP">UTP</option>
+                                <option value="STP">STP</option>
+                                <option value="FTP">FTP</option>
                             </select>
                         </div>
                     </div>
 
-                    <div class="service-points-section">
-                        <h3><i class="fas fa-cube"></i> Quantidade de Pontos por Serviço</h3>
-                        <div class="form-group-container">
-                            <div class="form-group">
-                                <label for="pontosDados">Dados</label>
-                                <input type="number" id="pontosDados" name="pontosDados" min="0" value="40">
+                    <div class="service-points-section mirror-section">
+                        <h3>
+                            <span><i class="fas fa-plug"></i> Espelhos de Tomada</span>
+                            <span class="section-counter" id="mirrorHolesCounter">100 / 100</span>
+                        </h3>
+                        <div id="espelhosContainer">
+                            <div class="mirror-row">
+                                <div class="form-group">
+                                    <label for="furacaoEspelho">Furação do Espelho</label>
+                                    <select id="furacaoEspelho" name="furacaoEspelho" class="mirror-holes">
+                                        <option value="1">1 furo</option>
+                                        <option value="2">2 furos</option>
+                                        <option value="4">4 furos</option>
+                                        <option value="6">6 furos</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="polegadaEspelho">Polegada do Espelho</label>
+                                    <select id="polegadaEspelho" name="polegadaEspelho" class="mirror-size">
+                                        <option value="4&quot; x 2&quot;">4" x 2"</option>
+                                        <option value="4&quot; x 4&quot;">4" x 4"</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="quantidadeEspelho">Quantidade</label>
+                                    <input type="number" id="quantidadeEspelho" name="quantidadeEspelho" class="mirror-quantity" min="0" value="50">
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label for="pontosVoz">Voz</label>
-                                <input type="number" id="pontosVoz" name="pontosVoz" min="0" value="5">
-                            </div>
-                            <div class="form-group">
-                                <label for="pontosCFTV">CFTV</label>
-                                <input type="number" id="pontosCFTV" name="pontosCFTV" min="0" value="0">
-                            </div>
-                            <div class="form-group">
-                                <label for="pontosWiFi">Wi-Fi</label>
-                                <input type="number" id="pontosWiFi" name="pontosWiFi" min="0" value="0">
-                            </div>
-                            <div class="form-group">
-                                <label for="pontosOutros">Outros</label>
-                                <input type="number" id="pontosOutros" name="pontosOutros" min="0" value="0">
-                            </div>
+                        </div>
+
+                        <button type="button" id="addEspelhoBtn" class="btn btn-inline mirror-add-btn">
+                            <i class="fas fa-plus"></i> Adicionar Espelho
+                        </button>
+                    </div>
+
+                    <div class="form-group-container">
+                        <div class="form-group">
+                            <label for="numBandejas">Número de Bandejas</label>
+                            <input type="number" id="numBandejas" name="numBandejas" min="0" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="numBandejasMoveis">Número de Bandejas Móveis</label>
+                            <input type="number" id="numBandejasMoveis" name="numBandejasMoveis" min="0" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="totalUBandejas">Total de U de Espaçamento Entre Bandejas</label>
+                            <input type="number" id="totalUBandejas" name="totalUBandejas" min="0" value="0">
                         </div>
                     </div>
 
-                    <div class="materials-section">
-                        <h3><i class="fas fa-boxes"></i> Definição de Materiais</h3>
-                        <div class="form-group-container">
-                            <div class="form-group">
-                                <label for="materialSEQ">Material da SEQ (Sala de Equipamento)</label>
-                                <select id="materialSEQ" name="materialSEQ">
-                                    <option value="Patch Panel">Patch Panel RJ45</option>
-                                    <option value="Patch Cord">Patch Cord</option>
-                                    <option value="Caixa Terminação">Caixa de Terminação</option>
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="materialSET">Material da SET (Sala de Telecom)</label>
-                                <select id="materialSET" name="materialSET">
-                                    <option value="Tomada RJ45">Tomada RJ45</option>
-                                    <option value="Caixa 2x2">Caixa 2x2</option>
-                                    <option value="Roseta">Roseta</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
                 <div class="button-container" id="calcularContainer" style="display: none;">
