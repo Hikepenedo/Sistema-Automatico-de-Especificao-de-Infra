@@ -250,6 +250,10 @@ body {
     margin-bottom: 0;
 }
 
+.additional-network-points {
+    margin-top: 20px;
+}
+
 .service-points-section h3 {
     color: var(--primary-color);
     margin-bottom: 15px;

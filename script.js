@@ -21,6 +21,7 @@ const COR_SERVICO = {
     pontosVoz: 'Amarelo',
     pontosCFTV: 'Vermelho'
 }
+const TAMANHOS_RACK = [4, 6, 8, 10, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48];
 
 document.addEventListener('DOMContentLoaded', inicializarEventos);
 
@@ -66,6 +67,10 @@ function realizarCalculo(e) {
         return;
     }
 
+    if (deveCalcular('horizontal') && !validarBandejas()) {
+        return;
+    }
+
     ultimosResultados = {
         backbone: deveCalcular('backbone') ? calcularBackbone() : null,
         horizontal: deveCalcular('horizontal') ? calcularMalhaHorizontal() : null,
@@ -96,7 +101,8 @@ function ocultarPontosPorServico() {
 
 function validarPontosPorServico() {
     const totalPontosServicos = calcularTotalPontosServicoRede();
-    const { pontosTelecom, pontosRede } = obterPontosRede();
+    const pontosRedeInfo = obterPontosRede();
+    const { pontosRede } = pontosRedeInfo;
 
     if (totalPontosServicos === pontosRede) {
         return true;
@@ -105,30 +111,73 @@ function validarPontosPorServico() {
     $('servicePointsSection').style.display = 'block';
     $('toggleServicePointsBtn').setAttribute('aria-expanded', 'true');
     rolarPara('servicePointsSection');
-    mostrarNotificacao(`A soma dos pontos por serviço (${totalPontosServicos}) deve ser igual ao número de pontos de rede (${pontosTelecom} x 2 = ${pontosRede}).`, 'erro');
+    mostrarNotificacao(`A soma dos pontos por serviço (${totalPontosServicos}) deve ser igual ao número de pontos de rede (${montarFormulaPontosRede(pontosRedeInfo)}).`, 'erro');
     return false;
 }
 
 function validarFurosEspelhos() {
     const espelhos = lerEspelhosTomada();
-    const { pontosTelecom, pontosRede } = obterPontosRede();
+    const pontosRedeInfo = obterPontosRede();
+    const { pontosRede } = pontosRedeInfo;
     const totalFuros = calcularTotalFurosEspelhos(espelhos);
 
     if (totalFuros === pontosRede) {
         return true;
     }
 
-    mostrarNotificacao(`O total de furos dos espelhos (${totalFuros}) deve ser igual ao número de pontos de rede (${pontosTelecom} x 2 = ${pontosRede}).`, 'erro');
+    mostrarNotificacao(`O total de furos dos espelhos (${totalFuros}) deve ser igual ao número de pontos de rede (${montarFormulaPontosRede(pontosRedeInfo)}).`, 'erro');
     rolarPara('espelhosContainer');
+    return false;
+}
+
+function validarBandejas() {
+    const numBandejas = lerInteiro('numBandejas', 0);
+    const numBandejasMoveis = lerInteiro('numBandejasMoveis', 0);
+    const totalUBandejas = lerInteiro('totalUBandejas', 0);
+    const totalBandejas = numBandejas + numBandejasMoveis;
+
+    if (totalBandejas === 0 && totalUBandejas === 0) {
+        return true;
+    }
+
+    if (totalBandejas === 0) {
+        mostrarNotificacao('Se não houver bandejas, o total de U entre as bandejas deve ser 0.', 'erro');
+        rolarPara('totalUBandejas');
+        return false;
+    }
+
+    if (totalUBandejas >= totalBandejas) {
+        return true;
+    }
+
+    mostrarNotificacao(`O total de U entre as bandejas deve ser no mínimo igual ao total de bandejas (${totalBandejas}).`, 'erro');
+    rolarPara('totalUBandejas');
     return false;
 }
 
 function obterPontosRede() {
     const pontosTelecom = lerInteiro('numPontosPavimento', 50);
+    const pontosRedeBase = pontosTelecom * 2;
+    const pontosRedeAdicionais = lerPontosRedeAdicionais();
+
     return {
         pontosTelecom,
-        pontosRede: pontosTelecom * 2
+        pontosRedeBase,
+        pontosRedeAdicionais,
+        pontosRede: pontosRedeBase + pontosRedeAdicionais
     };
+}
+
+function lerPontosRedeAdicionais() {
+    return lerInteiro('pontosRedeAdicionais', 0);
+}
+
+function montarFormulaPontosRede({ pontosTelecom, pontosRedeBase, pontosRedeAdicionais, pontosRede }) {
+    if (pontosRedeAdicionais > 0) {
+        return `${pontosTelecom} x 2 + ${pontosRedeAdicionais} = ${pontosRede}`;
+    }
+
+    return `${pontosTelecom} x 2 = ${pontosRedeBase}`;
 }
 
 function atualizarContadores() {
@@ -317,6 +366,8 @@ function lerFormularioHorizontal() {
         numBandejas: lerInteiro('numBandejas', 0),
         numBandejasMoveis: lerInteiro('numBandejasMoveis', 0),
         totalUBandejas: lerInteiro('totalUBandejas', 0),
+        tipoRack: lerValor('tipoRack', 'aberto'),
+        pontosRedeAdicionais: lerPontosRedeAdicionais(),
         pontos: lerPontosPorServico()
     };
 }
@@ -326,8 +377,8 @@ function calcularMalhaHorizontal() {
     const totalServicos = somarPontosPorServico(dados.pontos);
     const pontosPorPavimento = Math.max(dados.numPontosPavimento, totalServicos);
     const totalPontos = pontosPorPavimento * dados.numPavimentosMH;
-    const pontosRede = dados.numPontosPavimento * 2 * dados.numPavimentosMH;
-    const pontosRedePorPavimento = dados.numPontosPavimento * 2;
+    const pontosRedePorPavimento = (dados.numPontosPavimento * 2) + dados.pontosRedeAdicionais;
+    const pontosRede = pontosRedePorPavimento * dados.numPavimentosMH;
     const caboHorizontalMetros = pontosRedePorPavimento * dados.mediaDistancia * dados.numPavimentosMH;
     const quantidadePatchPanels = Math.ceil(pontosRede / 24);
     const quantidadeTomadas = totalPontos;
@@ -346,6 +397,7 @@ function calcularMalhaHorizontal() {
         totalFurosEspelhos: calcularTotalFurosEspelhos(dados.espelhos),
         totalPontos,
         pontosTelecom: dados.numPontosPavimento,
+        pontosRedeAdicionais: dados.pontosRedeAdicionais,
         pontosRedePorPavimento,
         numPavimentos: dados.numPavimentosMH,
         pontosRede,
@@ -354,6 +406,7 @@ function calcularMalhaHorizontal() {
         numBandejas: dados.numBandejas,
         numBandejasMoveis: dados.numBandejasMoveis,
         totalUBandejas: dados.totalUBandejas,
+        tipoRack: dados.tipoRack,
         detalhes: montarDetalhesPontos(dados.pontos, dados.numPavimentosMH)
     };
 }
@@ -455,7 +508,7 @@ function montarLinhasHorizontal(horizontal, contexto = 'tela') {
         linhaColspan(montarEspecificacaoOrganizadorFrontal(horizontal), classeEspecificacao),
         ...montarEspecificacaoPatchCable(horizontal)
             .map(especificacao => linhaColspan(especificacao, classeEspecificacao)),    
-        linhaColspan(montarEspecificacaoBandejas(horizontal), classeEspecificacao),
+        ...montarLinhaEspecificacaoOpcional(montarEspecificacaoBandejas(horizontal), classeEspecificacao),
         linhaColspan(montarEspecificacaoExaustor(horizontal), classeEspecificacao),
         linhaColspan(montarEspecificacaoRack(horizontal), classeEspecificacao),
         linhaColspan('Miscelânias', classeSecao)
@@ -463,7 +516,15 @@ function montarLinhasHorizontal(horizontal, contexto = 'tela') {
 }
 
 function montarEspecificacaoCordaoFlex(horizontal) {
-    return `Cordão ${horizontal.tipoCaboMetalico} flex ${horizontal.categoriaCabo} - 3m - (${horizontal.pontosTelecom} x 2 x ${horizontal.numPavimentos} = ${horizontal.pontosRede}) unidades (Patch Cord);`;
+    return `Cordão ${horizontal.tipoCaboMetalico} flex ${horizontal.categoriaCabo} - 3m - (${montarFormulaPontosRedeHorizontal(horizontal)}) unidades (Patch Cord);`;
+}
+
+function montarFormulaPontosRedeHorizontal(horizontal) {
+    if (horizontal.pontosRedeAdicionais > 0) {
+        return `(${horizontal.pontosTelecom} x 2 + ${horizontal.pontosRedeAdicionais}) x ${horizontal.numPavimentos} = ${horizontal.pontosRede}`;
+    }
+
+    return `${horizontal.pontosTelecom} x 2 x ${horizontal.numPavimentos} = ${horizontal.pontosRede}`;
 }
 
 function montarEspecificacaoTomadaFemea(horizontal) {
@@ -495,13 +556,31 @@ function getNumeroOrganizadoresFrontal(horizontal) {
     return totalPPporServico + horizontal.quantidadePatchPanels;
 }
 
+function getNumeroOrganizadoresFrontalPorPavimento(horizontal) {
+    const totalPPporServico = Object.keys(SERVICOS_PONTOS)
+        .reduce((total, campo) => total + Math.ceil((horizontal.detalhes[campo] / horizontal.numPavimentos) / 24), 0);
+    const patchPanelsMalhaHorizontal = Math.ceil(horizontal.pontosRedePorPavimento / 24);
+
+    return totalPPporServico + patchPanelsMalhaHorizontal;
+}
+
 function montarEspecificacaoOrganizadorFrontal(horizontal) {
     const totalOrganizadores = getNumeroOrganizadoresFrontal(horizontal);
     return `Organizador Frontal - 1U - 19" - ${totalOrganizadores} unidade${totalOrganizadores > 1 ? 's' : ''};`;
 }
 
 function montarEspecificacaoBandejas(horizontal) {
+    const totalBandejas = horizontal.numBandejas + horizontal.numBandejasMoveis + horizontal.totalUBandejas;
+
+    if (totalBandejas === 0) {
+        return null;
+    }
+
     return `Bandeja - 19" - ${horizontal.numBandejas} Fixas - ${horizontal.numBandejasMoveis} Moveis - ${horizontal.totalUBandejas}U `
+}
+
+function montarLinhaEspecificacaoOpcional(especificacao, classeEspecificacao) {
+    return especificacao ? [linhaColspan(especificacao, classeEspecificacao)] : [];
 }
 
 function montarEspecificacaoPatchCable(horizontal) {
@@ -516,15 +595,30 @@ function montarEspecificacaoPatchCable(horizontal) {
 }
 
 function montarEspecificacaoRack(horizontal) {
-    const totalU = (horizontal.totalUBandejas + (getNumeroOrganizadoresFrontal(horizontal) * 2) + 2);
-    // 4, 6, 8, 10, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48
-    
+    const totalU = getTotalU(horizontal);
+    const quantidadeRacks = getQuantidadedeRacks(horizontal);
+    const totalUporRack = Math.ceil(totalU / quantidadeRacks) * 1.5;
+    const tamanhoRack = getTamanhoRackComercial(totalUporRack)
+    const tipoRack = horizontal.tipoRack === 'fechado' ? 'fechado' : 'aberto';
+    return `Rack ${tipoRack} - 19" - ${tamanhoRack}U - ${quantidadeRacks * horizontal.numPavimentos} unidades;`;
+}
 
+function getTamanhoRackComercial(totalU) {
+    return TAMANHOS_RACK.find(tamanho => tamanho >= totalU) || Math.max(...TAMANHOS_RACK);
+}
+
+function getTotalU(horizontal) {
+    return (horizontal.totalUBandejas + (getNumeroOrganizadoresFrontalPorPavimento(horizontal) * 2) + 2);
+}
+
+function getQuantidadedeRacks(horizontal) {
+    const totalU = getTotalU(horizontal);
+    return Math.ceil(totalU / 48);
 }
 
 function montarEspecificacaoExaustor(horizontal) {
-    const totalExaustores = horizontal.numPavimentos * 2;
-    return `Exaustor - ${totalExaustores} unidades - 1U`;
+    const totalExaustores = getQuantidadedeRacks(horizontal) * 2 * horizontal.numPavimentos;
+    return `Exaustor - ${totalExaustores} unidades - 1U;`;
 }
 function montarEspecificacoesEspelhos(horizontal) {
     return horizontal.espelhos
