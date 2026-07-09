@@ -16,6 +16,12 @@ const SERVICOS_PONTOS = {
     pontosCFTV: 'CFTV'
 };
 
+const COR_SERVICO = {
+    pontosDados: 'Azul',
+    pontosVoz: 'Amarelo',
+    pontosCFTV: 'Vermelho'
+}
+
 document.addEventListener('DOMContentLoaded', inicializarEventos);
 
 function inicializarEventos() {
@@ -443,8 +449,15 @@ function montarLinhasHorizontal(horizontal, contexto = 'tela') {
         linhaColspan('Cabo Horizontal', classeSecao),
         linhaColspan(montarEspecificacaoCaboHorizontal(horizontal), classeEspecificacao),
         linhaColspan('Sala de Telecom (SET)', classeSecao),
+        linhaColspan(montarEspecificacaoPatchPanelMH(horizontal), classeEspecificacao),
         ...montarEspecificacoesPatchPanelSET(horizontal)
             .map(especificacao => linhaColspan(especificacao, classeEspecificacao)),
+        linhaColspan(montarEspecificacaoOrganizadorFrontal(horizontal), classeEspecificacao),
+        ...montarEspecificacaoPatchCable(horizontal)
+            .map(especificacao => linhaColspan(especificacao, classeEspecificacao)),    
+        linhaColspan(montarEspecificacaoBandejas(horizontal), classeEspecificacao),
+        linhaColspan(montarEspecificacaoExaustor(horizontal), classeEspecificacao),
+        linhaColspan(montarEspecificacaoRack(horizontal), classeEspecificacao),
         linhaColspan('Miscelânias', classeSecao)
     ];
 }
@@ -461,6 +474,10 @@ function montarEspecificacaoCaboHorizontal(horizontal) {
     return `Cabo ${horizontal.categoriaCabo} ${horizontal.tipoCaboMetalico} - (${horizontal.pontosRedePorPavimento} x ${formatarMedida(horizontal.mediaDistancia)} x ${horizontal.numPavimentos} = ${formatarMedida(horizontal.caboHorizontalMetros)}m / 305m = ${horizontal.caixasCaboHorizontal} caixa${horizontal.caixasCaboHorizontal > 1 ? 's' : ''});`;
 }
 
+function montarEspecificacaoPatchPanelMH(horizontal) {
+    return `Patch Panel Malha Horizontal ${horizontal.categoriaCabo} - 24 portas RJ45 - 1U - 19" - ${horizontal.quantidadePatchPanels} unidade${horizontal.quantidadePatchPanels > 1 ? 's' : ''};`;
+}
+
 function montarEspecificacoesPatchPanelSET(horizontal) {
     return Object.entries(SERVICOS_PONTOS)
         .map(([campo, servico]) => ({
@@ -468,10 +485,47 @@ function montarEspecificacoesPatchPanelSET(horizontal) {
             quantidadePontos: horizontal.detalhes[campo],
             quantidadePatchPanels: Math.ceil(horizontal.detalhes[campo] / 24)
         }))
-        .filter(item => item.quantidadePontos > 0)
+        .filter(item => item.quantidadePontos > 0 && item.servico !== 'Malha Horizontal')
         .map(item => `Patch Panel ${item.servico} - ${horizontal.categoriaCabo} - 24 portas RJ45 - 1U - 19" - ${item.quantidadePatchPanels} unidade${item.quantidadePatchPanels > 1 ? 's' : ''};`);
 }
 
+function getNumeroOrganizadoresFrontal(horizontal) {
+    const totalPPporServico = Object.keys(SERVICOS_PONTOS)
+        .reduce((total, campo) => total + Math.ceil(horizontal.detalhes[campo] / 24), 0);
+    return totalPPporServico + horizontal.quantidadePatchPanels;
+}
+
+function montarEspecificacaoOrganizadorFrontal(horizontal) {
+    const totalOrganizadores = getNumeroOrganizadoresFrontal(horizontal);
+    return `Organizador Frontal - 1U - 19" - ${totalOrganizadores} unidade${totalOrganizadores > 1 ? 's' : ''};`;
+}
+
+function montarEspecificacaoBandejas(horizontal) {
+    return `Bandeja - 19" - ${horizontal.numBandejas} Fixas - ${horizontal.numBandejasMoveis} Moveis - ${horizontal.totalUBandejas}U `
+}
+
+function montarEspecificacaoPatchCable(horizontal) {
+    return Object.entries(COR_SERVICO)
+        .map(([campo, servico]) => ({
+            servico,
+            quantidadePatchCable: horizontal.detalhes[campo]
+        }))
+        .filter(item => item.quantidadePatchCable > 0 )
+        .map(item => `Cordao de Ligacao (Patch Cable) - ${item.servico}- 3m - ${horizontal.categoriaCabo} - ${item.quantidadePatchCable} unidade${item.quantidadePatchCable > 1 ? 's' : ''};`);
+
+}
+
+function montarEspecificacaoRack(horizontal) {
+    const totalU = (horizontal.totalUBandejas + (getNumeroOrganizadoresFrontal(horizontal) * 2) + 2);
+    // 4, 6, 8, 10, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48
+    
+
+}
+
+function montarEspecificacaoExaustor(horizontal) {
+    const totalExaustores = horizontal.numPavimentos * 2;
+    return `Exaustor - ${totalExaustores} unidades - 1U`;
+}
 function montarEspecificacoesEspelhos(horizontal) {
     return horizontal.espelhos
         .filter(espelho => espelho.quantidade > 0)
