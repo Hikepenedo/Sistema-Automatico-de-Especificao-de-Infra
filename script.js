@@ -642,7 +642,7 @@ function montarEspecificacoesMiscelaneas(horizontal) {
         `Etiquetas portas Patch Pannel - ${miscelaneas.etiquetasPatchPanel} unidade${miscelaneas.etiquetasPatchPanel > 1 ? 's' : ''};`,
         `Etiquetas para rack - ${miscelaneas.etiquetasRack} unidade${miscelaneas.etiquetasRack > 1 ? 's' : ''};`,
         `Abraçadeiras de velcro (3 metros) - ${miscelaneas.bracadeirasVelcro} unidade${miscelaneas.bracadeirasVelcro > 1 ? 's' : ''};`,
-        `Abraçadeiras de plástico (100 unidades) - ${miscelaneas.bracadeirasPlastico} pacote${miscelaneas.bracadeirasPlastico > 1 ? 's' : ''};`,
+        `Abraçadeiras de plástico - Poliamida 6.6(100 unidades) - ${miscelaneas.bracadeirasPlastico} pacote${miscelaneas.bracadeirasPlastico > 1 ? 's' : ''};`,
         `Parafusos Porca Gaiola (16 unidades) - ${miscelaneas.parafusosPorcaGaiola} pacote${miscelaneas.parafusosPorcaGaiola > 1 ? 's' : ''};`
     ];
 }
