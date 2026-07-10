@@ -42,58 +42,45 @@
                         <h2><i class="fas fa-network-wired"></i> Backbone Óptico</h2>
                     </div>
                     
-                    <div class="form-group-container">
-                        <div class="form-group">
-                            <label for="numPavimentos">Número de Pavimentos</label>
-                            <input type="number" id="numPavimentos" name="numPavimentos" min="1" value="3">
-                        </div>
+                    <p class="backbone-helper">Selecione os tipos existentes no projeto. Você pode configurar um ou os dois.</p>
+                    <div class="backbone-type-selector">
+                        <button type="button" class="backbone-option" id="toggleBackbonePrimario" aria-pressed="false" aria-controls="backbonePrimarioForm">
+                            <i class="fas fa-building"></i>
+                            <span><strong>Backbone Primário</strong><small>Conexão entre backbones</small></span>
+                            <i class="fas fa-plus option-status" aria-hidden="true"></i>
+                        </button>
+                        <button type="button" class="backbone-option" id="toggleBackboneSecundario" aria-pressed="false" aria-controls="backboneSecundarioForm">
+                            <i class="fas fa-layer-group"></i>
+                            <span><strong>Backbone Secundário</strong><small>Distribuição entre pavimentos</small></span>
+                            <i class="fas fa-plus option-status" aria-hidden="true"></i>
+                        </button>
+                    </div>
 
-                        <div class="form-group">
-                            <label for="numFibras">Número de Fibras Disponíveis</label>
-                            <input type="number" id="numFibras" name="numFibras" min="1" value="6">
+                    <div class="backbone-config" id="backbonePrimarioForm" style="display: none;">
+                        <h3><i class="fas fa-building"></i> Configuração do Backbone Primário</h3>
+                        <div class="form-group-container">
+                            <div class="form-group"><label for="primarioNumPavimentos">Número de Backbones Conectados</label><input type="number" id="primarioNumPavimentos" min="1" value="3"></div>
+                            <div class="form-group"><label for="primarioNumFibras">Número de Fibras Disponíveis</label><input type="number" id="primarioNumFibras" min="1" value="6"></div>
+                            <div class="form-group"><label for="primarioMediaLance">Medida Básica do Lance de Cabo (metros)</label><input type="number" id="primarioMediaLance" min="1" value="5" step="0.1"></div>
+                            <div class="form-group"><label for="primarioTipoFibra">Tipo de Fibra</label><select id="primarioTipoFibra"><option value="SM">Monomodo (SM)</option><option value="MM" selected>Multimodo (MM)</option></select></div>
+                            <div class="form-group"><label for="primarioCaracteristicaFibra">Característica da Fibra</label><input type="text" id="primarioCaracteristicaFibra" placeholder="Ex: 9/125, 50/125"></div>
+                            <div class="form-group"><label for="primarioConstrucaoFibra">Característica de Construção da Fibra</label><select id="primarioConstrucaoFibra"><option value="Tight Buffer">Tight Buffer</option><option value="Loose Tube">Loose Tube</option></select></div>
+                            <div class="form-group"><label for="primarioCategoriaFibra">Categoria da Fibra</label><select id="primarioCategoriaFibra"></select></div>
+                            <div class="form-group"><label for="primarioQtdBackbonesAndar">Quantidade de Backbones por Andar</label><input type="number" id="primarioQtdBackbonesAndar" min="1" value="1"></div>
                         </div>
                     </div>
 
-                    <div class="form-group-container">
-                        <div class="form-group">
-                            <label for="mediaLance">Medida Básica do Lance de Cabo (metros)</label>
-                            <input type="number" id="mediaLance" name="mediaLance" min="1" value="5" step="0.1">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="tipoFibra">Tipo de Fibra</label>
-                            <select id="tipoFibra" name="tipoFibra">
-                                <option value="SM">Monomodo (SM)</option>
-                                <option value="MM" selected>Multimodo (MM)</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-group-container">
-                        <div class="form-group">
-                            <label for="caracteristicaFibra">Característica da Fibra</label>
-                            <input type="text" id="caracteristicaFibra" name="caracteristicaFibra" placeholder="Ex: 9/125, 50/125">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="qtdBackbonesAndar">Quantidade de Backbones por Andar</label>
-                            <input type="number" id="qtdBackbonesAndar" name="qtdBackbonesAndar" min="1" value="1">
-                        </div>
-                    </div>
-
-                    <div class="form-group-container">
-                        <div class="form-group">
-                            <label class="checkbox-label option-checkbox">
-                                <input type="checkbox" id="backbonePrimario" name="backbonePrimario">
-                                <span> Existe Backbone Primário?</span>
-                            </label>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="checkbox-label option-checkbox">
-                                <input type="checkbox" id="backboneSecundario" name="backboneSecundario">
-                                <span> Existe Backbone Secundário?</span>
-                            </label>
+                    <div class="backbone-config" id="backboneSecundarioForm" style="display: none;">
+                        <h3><i class="fas fa-layer-group"></i> Configuração do Backbone Secundário</h3>
+                        <div class="form-group-container">
+                            <div class="form-group"><label for="secundarioNumPavimentos">Número de Pavimentos</label><input type="number" id="secundarioNumPavimentos" min="1" value="3"></div>
+                            <div class="form-group"><label for="secundarioNumFibras">Número de Fibras Disponíveis</label><input type="number" id="secundarioNumFibras" min="1" value="6"></div>
+                            <div class="form-group"><label for="secundarioMediaLance">Medida Básica do Lance de Cabo (metros)</label><input type="number" id="secundarioMediaLance" min="1" value="5" step="0.1"></div>
+                            <div class="form-group"><label for="secundarioTipoFibra">Tipo de Fibra</label><select id="secundarioTipoFibra"><option value="SM">Monomodo (SM)</option><option value="MM" selected>Multimodo (MM)</option></select></div>
+                            <div class="form-group"><label for="secundarioCaracteristicaFibra">Característica da Fibra</label><input type="text" id="secundarioCaracteristicaFibra" placeholder="Ex: 9/125, 50/125"></div>
+                            <div class="form-group"><label for="secundarioConstrucaoFibra">Característica de Construção da Fibra</label><select id="secundarioConstrucaoFibra"><option value="Tight Buffer">Tight Buffer</option><option value="Loose Tube">Loose Tube</option></select></div>
+                            <div class="form-group"><label for="secundarioCategoriaFibra">Categoria da Fibra</label><select id="secundarioCategoriaFibra"></select></div>
+                            <div class="form-group"><label for="secundarioQtdBackbonesAndar">Quantidade de Backbones por Andar</label><input type="number" id="secundarioQtdBackbonesAndar" min="1" value="1"></div>
                         </div>
                     </div>
 
@@ -238,6 +225,14 @@
                         </div>
                     </div>
 
+                    <div class="optional-specification">
+                        <button type="button" class="backbone-option active" id="toggleMiscelaneas" aria-pressed="true">
+                            <i class="fas fa-toolbox"></i>
+                            <span><strong>Especificar Miscelâneas</strong><small id="miscelaneasStatus">Incluídas no cálculo e no resultado</small></span>
+                            <i class="fas fa-check option-status" aria-hidden="true"></i>
+                        </button>
+                    </div>
+
                 </div>
 
                 <div class="button-container" id="calcularContainer" style="display: none;">
@@ -253,12 +248,22 @@
                 <h2><i class="fas fa-chart-bar"></i> Resumo de Materiais</h2>
             </div>
 
-            <div class="result-card" id="resultBackbone" style="display: none;">
+            <div class="result-card result-backbone-primary" id="resultBackbonePrimario" style="display: none;">
                 <div class="result-card-header">
-                    <h3><i class="fas fa-network-wired"></i> Backbone Óptico</h3>
+                    <h3><i class="fas fa-building"></i> Backbone Primário</h3>
                 </div>
                 <table class="result-table">
-                    <tbody id="resultBackboneBody">
+                    <tbody id="resultBackbonePrimarioBody">
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="result-card result-backbone-secondary" id="resultBackboneSecundario" style="display: none;">
+                <div class="result-card-header">
+                    <h3><i class="fas fa-layer-group"></i> Backbone Secundário</h3>
+                </div>
+                <table class="result-table">
+                    <tbody id="resultBackboneSecundarioBody">
                     </tbody>
                 </table>
             </div>

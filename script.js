@@ -22,6 +22,10 @@ const COR_SERVICO = {
     pontosCFTV: 'Vermelho'
 }
 const TAMANHOS_RACK = [4, 6, 8, 10, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48];
+const CATEGORIAS_FIBRA = {
+    MM: ['OM1', 'OM2', 'OM3', 'OM4', 'OM5'],
+    SM: ['OS1', 'OS2']
+};
 
 document.addEventListener('DOMContentLoaded', inicializarEventos);
 
@@ -37,7 +41,66 @@ function inicializarEventos() {
     $('servicePointsSection').addEventListener('input', atualizarContadores);
     $('espelhosContainer').addEventListener('input', atualizarContadores);
     $('espelhosContainer').addEventListener('change', atualizarContadores);
+    $('toggleBackbonePrimario').addEventListener('click', () => alternarBackbone('Primario'));
+    $('toggleBackboneSecundario').addEventListener('click', () => alternarBackbone('Secundario'));
+    $('toggleMiscelaneas').addEventListener('click', alternarMiscelaneas);
+    ['primario', 'secundario'].forEach(prefixo => {
+        $(`${prefixo}TipoFibra`).addEventListener('change', () => atualizarCategoriasFibra(prefixo));
+        atualizarCategoriasFibra(prefixo);
+    });
     atualizarContadores();
+}
+
+function alternarMiscelaneas() {
+    const botao = $('toggleMiscelaneas');
+    const incluir = botao.getAttribute('aria-pressed') !== 'true';
+    botao.setAttribute('aria-pressed', String(incluir));
+    botao.classList.toggle('active', incluir);
+    botao.querySelector('.option-status').className = `fas ${incluir ? 'fa-check' : 'fa-plus'} option-status`;
+    $('miscelaneasStatus').textContent = incluir
+        ? 'Incluídas no cálculo e no resultado'
+        : 'Não serão incluídas no resultado';
+}
+
+function resetarMiscelaneas() {
+    const botao = $('toggleMiscelaneas');
+    botao.setAttribute('aria-pressed', 'true');
+    botao.classList.add('active');
+    botao.querySelector('.option-status').className = 'fas fa-check option-status';
+    $('miscelaneasStatus').textContent = 'Incluídas no cálculo e no resultado';
+}
+
+function atualizarCategoriasFibra(prefixo) {
+    const tipoFibra = $(`${prefixo}TipoFibra`).value;
+    const campoCategoria = $(`${prefixo}CategoriaFibra`);
+    const categoriaAtual = campoCategoria.value;
+    const categorias = CATEGORIAS_FIBRA[tipoFibra] || [];
+
+    campoCategoria.innerHTML = categorias
+        .map(categoria => `<option value="${categoria}">${categoria}</option>`)
+        .join('');
+
+    if (categorias.includes(categoriaAtual)) campoCategoria.value = categoriaAtual;
+}
+
+function alternarBackbone(tipo) {
+    const botao = $(`toggleBackbone${tipo}`);
+    const formulario = $(`backbone${tipo}Form`);
+    const ativo = botao.getAttribute('aria-pressed') !== 'true';
+    botao.setAttribute('aria-pressed', String(ativo));
+    botao.classList.toggle('active', ativo);
+    botao.querySelector('.option-status').className = `fas ${ativo ? 'fa-check' : 'fa-plus'} option-status`;
+    formulario.style.display = ativo ? 'block' : 'none';
+}
+
+function resetarSelecaoBackbones() {
+    ['Primario', 'Secundario'].forEach(tipo => {
+        const botao = $(`toggleBackbone${tipo}`);
+        botao.setAttribute('aria-pressed', 'false');
+        botao.classList.remove('active');
+        botao.querySelector('.option-status').className = 'fas fa-plus option-status';
+        $(`backbone${tipo}Form`).style.display = 'none';
+    });
 }
 
 function selecionarTipo(tipo) {
@@ -71,8 +134,13 @@ function realizarCalculo(e) {
         return;
     }
 
+    if (deveCalcular('backbone') && !temBackboneSelecionado()) {
+        mostrarNotificacao('Selecione pelo menos um tipo de backbone para calcular!', 'erro');
+        return;
+    }
+
     ultimosResultados = {
-        backbone: deveCalcular('backbone') ? calcularBackbone() : null,
+        backbone: deveCalcular('backbone') ? calcularBackbones() : null,
         horizontal: deveCalcular('horizontal') ? calcularMalhaHorizontal() : null,
         tipo: calculoAtivo
     };
@@ -81,6 +149,12 @@ function realizarCalculo(e) {
 
 function deveCalcular(tipo) {
     return calculoAtivo === tipo || calculoAtivo === 'complete';
+}
+
+function temBackboneSelecionado() {
+    return ['Primario', 'Secundario'].some(tipo =>
+        $(`toggleBackbone${tipo}`).getAttribute('aria-pressed') === 'true'
+    );
 }
 
 function alternarPontosPorServico() {
@@ -230,21 +304,21 @@ function lerValor(id, valorPadrao = '') {
     return $(id).value || valorPadrao;
 }
 
-function lerFormularioBackbone() {
+function lerFormularioBackbone(prefixo) {
     return {
-        numPavimentos: lerInteiro('numPavimentos', 1),
-        numFibras: lerInteiro('numFibras', 12),
-        mediaLance: lerDecimal('mediaLance', 50),
-        tipoFibra: lerValor('tipoFibra'),
-        caracteristicaFibra: lerValor('caracteristicaFibra', 'Não especificada'),
-        qtdBackbonesAndar: lerInteiro('qtdBackbonesAndar', 1),
-        backbonePrimario: $('backbonePrimario').checked,
-        backboneSecundario: $('backboneSecundario').checked
+        numPavimentos: lerInteiro(`${prefixo}NumPavimentos`, 1),
+        numFibras: lerInteiro(`${prefixo}NumFibras`, 12),
+        mediaLance: lerDecimal(`${prefixo}MediaLance`, 50),
+        tipoFibra: lerValor(`${prefixo}TipoFibra`),
+        caracteristicaFibra: lerValor(`${prefixo}CaracteristicaFibra`, 'Não especificada'),
+        construcaoFibra: lerValor(`${prefixo}ConstrucaoFibra`, 'Tight Buffer'),
+        categoriaFibra: lerValor(`${prefixo}CategoriaFibra`),
+        qtdBackbonesAndar: lerInteiro(`${prefixo}QtdBackbonesAndar`, 1)
     };
 }
 
-function calcularBackbone() {
-    const dados = lerFormularioBackbone();
+function calcularBackbone(prefixo) {
+    const dados = lerFormularioBackbone(prefixo);
     const totalBackbones = dados.qtdBackbonesAndar * dados.numPavimentos;
     const caboOticoBaseMetros = Math.floor(calcularCaboOticoBaseMetros(dados.mediaLance, dados.numPavimentos));
     const caboOticoTotalBaseMetros = caboOticoBaseMetros * dados.qtdBackbonesAndar;
@@ -252,6 +326,7 @@ function calcularBackbone() {
 
     return {
         ...dados,
+        tipoBackbone: prefixo,
         totalBackbones,
         totalPavimentos: dados.numPavimentos,
         quantidadeFibras,
@@ -259,6 +334,13 @@ function calcularBackbone() {
         caboOticoTotalBaseMetros,
         totalCaboOticoMetros: (caboOticoTotalBaseMetros * 2 * 1.2).toFixed(2),
         materiaisOpticos: calcularMateriaisOpticos(quantidadeFibras)
+    };
+}
+
+function calcularBackbones() {
+    return {
+        primario: $('toggleBackbonePrimario').getAttribute('aria-pressed') === 'true' ? calcularBackbone('primario') : null,
+        secundario: $('toggleBackboneSecundario').getAttribute('aria-pressed') === 'true' ? calcularBackbone('secundario') : null
     };
 }
 
@@ -367,6 +449,7 @@ function lerFormularioHorizontal() {
         numBandejasMoveis: lerInteiro('numBandejasMoveis', 0),
         totalUBandejas: lerInteiro('totalUBandejas', 0),
         tipoRack: lerValor('tipoRack', 'aberto'),
+        incluirMiscelaneas: $('toggleMiscelaneas').getAttribute('aria-pressed') === 'true',
         pontosRedeAdicionais: lerPontosRedeAdicionais(),
         pontos: lerPontosPorServico()
     };
@@ -408,12 +491,15 @@ function calcularMalhaHorizontal() {
         numBandejasMoveis: dados.numBandejasMoveis,
         totalUBandejas: dados.totalUBandejas,
         tipoRack: dados.tipoRack,
+        incluirMiscelaneas: dados.incluirMiscelaneas,
         detalhes,
         quantidadeRacks: 0
     };
 
     horizontal.quantidadeRacks = getQuantidadedeRacks(horizontal) * horizontal.numPavimentos;
-    horizontal.miscelaneas = calcularMiscelaneas(horizontal);
+    horizontal.miscelaneas = horizontal.incluirMiscelaneas
+        ? calcularMiscelaneas(horizontal)
+        : null;
 
     return horizontal;
 }
@@ -452,7 +538,7 @@ function montarEspecificacoesBackbone(backbone) {
     const unidadeCaixa = materiais.quantidadeCaixaEmenda > 1 ? 's' : '';
 
     return [
-        `Cabo de fibra óptica ${tipoCabo} ${caracteristica} - (${formatarMedida(backbone.caboOticoBaseMetros)} x ${formatarMedida(backbone.qtdBackbonesAndar)} x 2 x 1,2=${formatarMedida(backbone.totalCaboOticoMetros)}m) - com ${backbone.numFibras} fibras;`,
+        `Cabo de fibra óptica ${tipoCabo} ${caracteristica} - ${backbone.construcaoFibra} -  ${backbone.categoriaFibra} - (${formatarMedida(backbone.caboOticoBaseMetros)} x ${formatarMedida(backbone.qtdBackbonesAndar)} x 2 x 1,2=${formatarMedida(backbone.totalCaboOticoMetros)}m) - com ${backbone.numFibras} fibras;`,
         `DIO - Distribuidor Interno Óptico - usar ${formatarQuantidade(materiais.portasDIO)} portas - ${formatarQuantidade(materiais.quantidadeDIO)} Chassi${unidadeDIO} de 19" (24 portas) - 1U;`,
         `Caixa de emenda (suporta 12 emendas) = ${formatarQuantidade(materiais.quantidadeCaixaEmenda)} unidade${unidadeCaixa};`,
         `Acoplador óptico (${caracteristica}) simples - conector LC - ${formatarQuantidade(materiais.quantidadeAcopladorLC)} unidades;`,
@@ -485,12 +571,15 @@ function linhaColspan(valor, className = '') {
 function montarLinhasBackbone(backbone, incluirClasse = false) {
     const classeSecao = incluirClasse ? 'section-row' : '';
     const classeEspecificacao = incluirClasse ? 'specification-cell' : '';
+    const nomeSalaDistribuicao = backbone.tipoBackbone === 'primario'
+        ? 'Sala de Equipamentos Secundária (SEQ Secundária)'
+        : 'Sala de Telecom (SET)';
 
     return [
         linhaColspan('Sala de Equipamentos (SEQ)', classeSecao),
         ...montarEspecificacoesBackbone(backbone)
             .map(item => linhaColspan(item, classeEspecificacao)),
-        linhaColspan('Sala de Telecom (SET)', classeSecao),
+        linhaColspan(nomeSalaDistribuicao, classeSecao),
         ...montarEspecificacoesBackboneSET(backbone)
             .map(item => linhaColspan(item, classeEspecificacao))
     ];
@@ -500,7 +589,7 @@ function montarLinhasHorizontal(horizontal, contexto = 'tela') {
     const classeSecao = contexto === 'excel' ? '' : 'section-row';
     const classeEspecificacao = contexto === 'excel' ? '' : 'specification-cell';
 
-    return [
+    const linhas = [
         linhaColspan('Área de Trabalho', classeSecao),
         linhaColspan(montarEspecificacaoCordaoFlex(horizontal), classeEspecificacao),
         linhaColspan(montarEspecificacaoTomadaFemea(horizontal), classeEspecificacao),
@@ -517,11 +606,18 @@ function montarLinhasHorizontal(horizontal, contexto = 'tela') {
             .map(especificacao => linhaColspan(especificacao, classeEspecificacao)),    
         ...montarLinhaEspecificacaoOpcional(montarEspecificacaoBandejas(horizontal), classeEspecificacao),
         linhaColspan(montarEspecificacaoExaustor(horizontal), classeEspecificacao),
-        linhaColspan(montarEspecificacaoRack(horizontal), classeEspecificacao),
-        linhaColspan('Miscelânias', classeSecao),
-        ...montarEspecificacoesMiscelaneas(horizontal)
-            .map(especificacao => linhaColspan(especificacao, classeEspecificacao))
+        linhaColspan(montarEspecificacaoRack(horizontal), classeEspecificacao)
     ];
+
+    if (horizontal.incluirMiscelaneas) {
+        linhas.push(
+            linhaColspan('Miscelânias', classeSecao),
+            ...montarEspecificacoesMiscelaneas(horizontal)
+                .map(especificacao => linhaColspan(especificacao, classeEspecificacao))
+        );
+    }
+
+    return linhas;
 }
 
 function montarEspecificacaoCordaoFlex(horizontal) {
@@ -620,6 +716,8 @@ function calcularMiscelaneas(horizontal) {
         .filter(([campo]) => campo !== 'pontosDados')
         .reduce((total, [campo]) => total + Math.ceil((horizontal.detalhes[campo] || 0) / 24), 0);
     const totalPatchPanels = quantidadePatchPanels + totalPatchPanelsServicos;
+    const totalPatchCables = Object.keys(COR_SERVICO)
+        .reduce((total, campo) => total + (horizontal.detalhes[campo] || 0), 0);
     const totalU = getTotalU(horizontal);
     const totalUporRack = quantidadeRacks > 0 ? Math.ceil(totalU / quantidadeRacks) * 1.5 : 0;
     const tamanhoRack = quantidadeRacks > 0 ? getTamanhoRackComercial(totalUporRack) : 0;
@@ -627,6 +725,7 @@ function calcularMiscelaneas(horizontal) {
     return {
         etiquetasEspelhoTomada: pontosRedeTotal,
         etiquetasPatchPanel: totalPatchPanels * 24,
+        etiquetasPatchCable: totalPatchCables * 2,
         etiquetasRack: quantidadeRacks,
         bracadeirasVelcro: Math.ceil((pontosRedeTotal * 0.25 * 1.15) / 3),
         bracadeirasPlastico: Math.ceil(((pontosRedeTotal * 1.5 + quantidadeRacks * 150) * 1.2) / 100),
@@ -640,6 +739,7 @@ function montarEspecificacoesMiscelaneas(horizontal) {
     return [
         `Etiquetas para espelho de tomada - ${miscelaneas.etiquetasEspelhoTomada} unidade${miscelaneas.etiquetasEspelhoTomada > 1 ? 's' : ''};`,
         `Etiquetas portas Patch Pannel - ${miscelaneas.etiquetasPatchPanel} unidade${miscelaneas.etiquetasPatchPanel > 1 ? 's' : ''};`,
+        `Etiquetas para Patch Cable - ${miscelaneas.etiquetasPatchCable} unidade${miscelaneas.etiquetasPatchCable > 1 ? 's' : ''};`,
         `Etiquetas para rack - ${miscelaneas.etiquetasRack} unidade${miscelaneas.etiquetasRack > 1 ? 's' : ''};`,
         `Abraçadeiras de velcro (3 metros) - ${miscelaneas.bracadeirasVelcro} unidade${miscelaneas.bracadeirasVelcro > 1 ? 's' : ''};`,
         `Abraçadeiras de plástico - Poliamida 6.6(100 unidades) - ${miscelaneas.bracadeirasPlastico} pacote${miscelaneas.bracadeirasPlastico > 1 ? 's' : ''};`,
@@ -695,9 +795,14 @@ function renderizarSecao(idCard, idBody, linhas) {
 
 function renderizarBackbone() {
     renderizarSecao(
-        'resultBackbone',
-        'resultBackboneBody',
-        ultimosResultados.backbone && montarLinhasBackbone(ultimosResultados.backbone, true)
+        'resultBackbonePrimario',
+        'resultBackbonePrimarioBody',
+        ultimosResultados.backbone?.primario && montarLinhasBackbone(ultimosResultados.backbone.primario, true)
+    );
+    renderizarSecao(
+        'resultBackboneSecundario',
+        'resultBackboneSecundarioBody',
+        ultimosResultados.backbone?.secundario && montarLinhasBackbone(ultimosResultados.backbone.secundario, true)
     );
 }
 
@@ -718,7 +823,10 @@ function exibirResultados() {
 
 function novoCalculo() {
     $('calculoForm').reset();
+    ['primario', 'secundario'].forEach(atualizarCategoriasFibra);
+    resetarMiscelaneas();
     limparEspelhosTomada();
+    resetarSelecaoBackbones();
     atualizarContadores();
     ['resultado', 'backboneSection', 'horizontalSection', 'calcularContainer'].forEach(id => {
         $(id).style.display = 'none';
@@ -747,8 +855,12 @@ function montarTabelaExcel() {
         '<tr><td colspan="2"></td></tr>'
     ];
 
-    if (ultimosResultados.backbone) {
-        secoes.push(montarSecaoExcel('BACKBONE ÓPTICO', montarLinhasBackbone(ultimosResultados.backbone)));
+    if (ultimosResultados.backbone?.primario) {
+        secoes.push(montarSecaoExcel('BACKBONE PRIMÁRIO', montarLinhasBackbone(ultimosResultados.backbone.primario)));
+        secoes.push('<tr><td colspan="2"></td></tr>');
+    }
+    if (ultimosResultados.backbone?.secundario) {
+        secoes.push(montarSecaoExcel('BACKBONE SECUNDÁRIO', montarLinhasBackbone(ultimosResultados.backbone.secundario)));
         secoes.push('<tr><td colspan="2"></td></tr>');
     }
     if (ultimosResultados.horizontal) {
