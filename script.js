@@ -333,7 +333,7 @@ function calcularBackbone(prefixo) {
         caboOticoBaseMetros,
         caboOticoTotalBaseMetros,
         totalCaboOticoMetros: (caboOticoTotalBaseMetros * 2 * 1.2).toFixed(2),
-        materiaisOpticos: calcularMateriaisOpticos(quantidadeFibras)
+        materiaisOpticos: calcularMateriaisOpticos(quantidadeFibras, dados.numFibras, totalBackbones)
     };
 }
 
@@ -349,15 +349,16 @@ function calcularCaboOticoBaseMetros(mediaLance, totalPavimentos) {
         .reduce((total, metros) => total + metros, 0);
 }
 
-function calcularMateriaisOpticos(totalFibras) {
+function calcularMateriaisOpticos(totalFibras, fibrasPorBackbone, totalBackbones) {
     const portasDIO = Math.ceil(totalFibras / 2);
     return {
         portasDIO,
         quantidadeDIO: Math.ceil(portasDIO / 24),
         quantidadeCaixaEmenda: Math.ceil(totalFibras / 12),
-        quantidadeAcopladorLC: portasDIO,
+        quantidadeAcopladorLC: totalFibras,
         quantidadePigtailLC: totalFibras,
-        quantidadeCordaoLC: totalFibras
+        quantidadeCordaoLC: totalFibras,
+        quantidadePigtailDuplo: Math.ceil(fibrasPorBackbone / 2) * totalBackbones
     };
 }
 
@@ -463,7 +464,8 @@ function calcularMalhaHorizontal() {
     const pontosRedePorPavimento = (dados.numPontosPavimento * 2) + dados.pontosRedeAdicionais;
     const pontosRede = pontosRedePorPavimento * dados.numPavimentosMH;
     const caboHorizontalMetros = pontosRedePorPavimento * dados.mediaDistancia * dados.numPavimentosMH;
-    const quantidadePatchPanels = Math.ceil(pontosRede / 24);
+    const quantidadePatchPanelsPorPavimento = Math.ceil(pontosRedePorPavimento / 24);
+    const quantidadePatchPanels = quantidadePatchPanelsPorPavimento * dados.numPavimentosMH;
     const quantidadeTomadas = totalPontos;
     const detalhes = montarDetalhesPontos(dados.pontos, dados.numPavimentosMH);
 
@@ -471,6 +473,7 @@ function calcularMalhaHorizontal() {
         totalCaboUTPMetros: ((dados.mediaDistancia * totalPontos) + (100 * dados.numPavimentosMH)).toFixed(2),
         quantidadeConectoresRJ45: totalPontos * 2,
         quantidadePatchPanels,
+        quantidadePatchPanelsPorPavimento,
         quantidadePatchCords: totalPontos + 10,
         quantidadeTomadas,
         quantidadeCaixas: Math.ceil(totalPontos / 2),
@@ -538,7 +541,7 @@ function montarEspecificacoesBackbone(backbone) {
     const unidadeCaixa = materiais.quantidadeCaixaEmenda > 1 ? 's' : '';
 
     return [
-        `Cabo de fibra óptica ${tipoCabo} ${caracteristica} - ${backbone.construcaoFibra} -  ${backbone.categoriaFibra} - (${formatarMedida(backbone.caboOticoBaseMetros)} x ${formatarMedida(backbone.qtdBackbonesAndar)} x 2 x 1,2=${formatarMedida(backbone.totalCaboOticoMetros)}m) - com ${backbone.numFibras} fibras;`,
+        `Cabo de fibra óptica ${tipoCabo} ${caracteristica} - ${backbone.construcaoFibra} - ${backbone.categoriaFibra} - ${formatarMedida(backbone.totalCaboOticoMetros)}m - com ${backbone.numFibras} fibras;`,
         `DIO - Distribuidor Interno Óptico - usar ${formatarQuantidade(materiais.portasDIO)} portas - ${formatarQuantidade(materiais.quantidadeDIO)} Chassi${unidadeDIO} de 19" (24 portas) - 1U;`,
         `Caixa de emenda (suporta 12 emendas) = ${formatarQuantidade(materiais.quantidadeCaixaEmenda)} unidade${unidadeCaixa};`,
         `Acoplador óptico (${caracteristica}) simples - conector LC - ${formatarQuantidade(materiais.quantidadeAcopladorLC)} unidades;`,
@@ -552,11 +555,11 @@ function montarEspecificacoesBackboneSET(backbone) {
     const caracteristica = obterCaracteristicaFibra(backbone);
     const quantidadeTerminadores = Math.ceil(backbone.quantidadeFibras / backbone.numFibras);
     const unidadeTerminador = quantidadeTerminadores > 1 ? 'unidades' : 'unidade';
-    const unidadePigtail = materiais.portasDIO > 1 ? 'unidades' : 'unidade';
+    const unidadePigtail = materiais.quantidadePigtailDuplo > 1 ? 'unidades' : 'unidade';
 
     return [
         `Terminador Óptico (TO) de ${backbone.numFibras} fibras – ${formatarQuantidade(quantidadeTerminadores)} ${unidadeTerminador};`,
-        `Pigtail (${caracteristica}) duplo – conector LC - 3m - ${formatarQuantidade(materiais.portasDIO)} ${unidadePigtail};`
+        `Pigtail (${caracteristica}) duplo – conector LC - 3m - ${formatarQuantidade(materiais.quantidadePigtailDuplo)} ${unidadePigtail};`
     ];
 }
 
@@ -621,15 +624,7 @@ function montarLinhasHorizontal(horizontal, contexto = 'tela') {
 }
 
 function montarEspecificacaoCordaoFlex(horizontal) {
-    return `Cordão ${horizontal.tipoCaboMetalico} flex ${horizontal.categoriaCabo} - 3m - (${montarFormulaPontosRedeHorizontal(horizontal)}) unidades (Patch Cord);`;
-}
-
-function montarFormulaPontosRedeHorizontal(horizontal) {
-    if (horizontal.pontosRedeAdicionais > 0) {
-        return `(${horizontal.pontosTelecom} x 2 + ${horizontal.pontosRedeAdicionais}) x ${horizontal.numPavimentos} = ${horizontal.pontosRede}`;
-    }
-
-    return `${horizontal.pontosTelecom} x 2 x ${horizontal.numPavimentos} = ${horizontal.pontosRede}`;
+    return `Cordão ${horizontal.tipoCaboMetalico} flex ${horizontal.categoriaCabo} - 3m - ${horizontal.pontosRede} unidades (Patch Cord);`;
 }
 
 function montarEspecificacaoTomadaFemea(horizontal) {
@@ -637,7 +632,7 @@ function montarEspecificacaoTomadaFemea(horizontal) {
 }
 
 function montarEspecificacaoCaboHorizontal(horizontal) {
-    return `Cabo ${horizontal.categoriaCabo} ${horizontal.tipoCaboMetalico} - (${horizontal.pontosRedePorPavimento} x ${formatarMedida(horizontal.mediaDistancia)} x ${horizontal.numPavimentos} = ${formatarMedida(horizontal.caboHorizontalMetros)}m / 305m = ${horizontal.caixasCaboHorizontal} caixa${horizontal.caixasCaboHorizontal > 1 ? 's' : ''});`;
+    return `Cabo ${horizontal.categoriaCabo} ${horizontal.tipoCaboMetalico} - ${formatarMedida(horizontal.caboHorizontalMetros)}m - ${horizontal.caixasCaboHorizontal} caixa${horizontal.caixasCaboHorizontal > 1 ? 's' : ''} de 305m;`;
 }
 
 function montarEspecificacaoPatchPanelMH(horizontal) {
@@ -649,16 +644,17 @@ function montarEspecificacoesPatchPanelSET(horizontal) {
         .map(([campo, servico]) => ({
             servico,
             quantidadePontos: horizontal.detalhes[campo],
-            quantidadePatchPanels: Math.ceil(horizontal.detalhes[campo] / 24)
+            quantidadePatchPanelsPorPavimento: Math.ceil((horizontal.detalhes[campo] / horizontal.numPavimentos) / 24)
         }))
         .filter(item => item.quantidadePontos > 0 && item.servico !== 'Malha Horizontal')
-        .map(item => `Patch Panel ${item.servico} - ${horizontal.categoriaCabo} - 24 portas RJ45 - 1U - 19" - ${item.quantidadePatchPanels} unidade${item.quantidadePatchPanels > 1 ? 's' : ''};`);
+        .map(item => {
+            const quantidadePatchPanels = item.quantidadePatchPanelsPorPavimento * horizontal.numPavimentos;
+            return `Patch Panel ${item.servico} - ${horizontal.categoriaCabo} - 24 portas RJ45 - 1U - 19" - ${quantidadePatchPanels} unidade${quantidadePatchPanels > 1 ? 's' : ''};`;
+        });
 }
 
 function getNumeroOrganizadoresFrontal(horizontal) {
-    const totalPPporServico = Object.keys(SERVICOS_PONTOS)
-        .reduce((total, campo) => total + Math.ceil(horizontal.detalhes[campo] / 24), 0);
-    return totalPPporServico + horizontal.quantidadePatchPanels;
+    return getNumeroOrganizadoresFrontalPorPavimento(horizontal) * horizontal.numPavimentos;
 }
 
 function getNumeroOrganizadoresFrontalPorPavimento(horizontal) {
@@ -675,13 +671,15 @@ function montarEspecificacaoOrganizadorFrontal(horizontal) {
 }
 
 function montarEspecificacaoBandejas(horizontal) {
-    const totalBandejas = horizontal.numBandejas + horizontal.numBandejasMoveis + horizontal.totalUBandejas;
+    const totalBandejas = horizontal.numBandejas + horizontal.numBandejasMoveis;
 
     if (totalBandejas === 0) {
         return null;
     }
 
-    return `Bandeja - 19" - ${horizontal.numBandejas} fixa${horizontal.numBandejas !== 1 ? 's' : ''} - ${horizontal.numBandejasMoveis} movel${horizontal.numBandejasMoveis !== 1 ? 's' : ''}`;
+    const totalBandejasFixas = horizontal.numBandejas * horizontal.numPavimentos;
+    const totalBandejasMoveis = horizontal.numBandejasMoveis * horizontal.numPavimentos;
+    return `Bandeja - 19" - ${totalBandejasFixas} fixa${totalBandejasFixas !== 1 ? 's' : ''} - ${totalBandejasMoveis} móvel${totalBandejasMoveis !== 1 ? 'is' : ''};`;
 }
 
 function montarLinhaEspecificacaoOpcional(especificacao, classeEspecificacao) {
@@ -714,13 +712,17 @@ function calcularMiscelaneas(horizontal) {
     const quantidadeRacks = horizontal.quantidadeRacks || 0;
     const totalPatchPanelsServicos = Object.entries(SERVICOS_PONTOS)
         .filter(([campo]) => campo !== 'pontosDados')
-        .reduce((total, [campo]) => total + Math.ceil((horizontal.detalhes[campo] || 0) / 24), 0);
+        .reduce((total, [campo]) => {
+            const pontosPorPavimento = (horizontal.detalhes[campo] || 0) / horizontal.numPavimentos;
+            return total + (Math.ceil(pontosPorPavimento / 24) * horizontal.numPavimentos);
+        }, 0);
     const totalPatchPanels = quantidadePatchPanels + totalPatchPanelsServicos;
     const totalPatchCables = Object.keys(COR_SERVICO)
         .reduce((total, campo) => total + (horizontal.detalhes[campo] || 0), 0);
     const totalU = getTotalU(horizontal);
-    const totalUporRack = quantidadeRacks > 0 ? Math.ceil(totalU / quantidadeRacks) * 1.5 : 0;
-    const tamanhoRack = quantidadeRacks > 0 ? getTamanhoRackComercial(totalUporRack) : 0;
+    const racksPorPavimento = getQuantidadedeRacks(horizontal);
+    const totalUporRack = racksPorPavimento > 0 ? Math.ceil(totalU / racksPorPavimento) * 1.5 : 0;
+    const tamanhoRack = racksPorPavimento > 0 ? getTamanhoRackComercial(totalUporRack) : 0;
 
     return {
         etiquetasEspelhoTomada: pontosRedeTotal,
